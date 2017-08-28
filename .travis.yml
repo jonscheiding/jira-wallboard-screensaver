@@ -1,2 +1,10 @@
 language: csharp
 solution: Jira.WallboardScreensaver.sln
+
+install:
+  - nuget restore
+  - sudo apt-get install nunit-console
+
+script:
+  - msbuild
+  - nunit-console ./Jira.WallboardScreensaver.Tests/bin/Debug/Jira.WallboardScreensaver.Tests.dll
