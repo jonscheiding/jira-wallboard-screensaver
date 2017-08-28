@@ -33,7 +33,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
                 .ContinueWith(t => _ignoreUserActivity = false);
         }
 
-        private void OnUserActivity()
+        private void OnUserActivity(object sender, EventArgs e)
         {
             if (_ignoreUserActivity) {
                 return;
