@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace Jira.WallboardScreensaver {
+namespace Jira.WallboardScreensaver.Screensaver {
     partial class ScreensaverForm
     {
         /// <summary>
@@ -37,7 +37,6 @@ namespace Jira.WallboardScreensaver {
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "ScreensaverForm";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.Load += new System.EventHandler(this.OnLoad);
             this.ResumeLayout(false);
 
         }
