@@ -1,5 +1,8 @@
-﻿namespace Jira.WallboardScreensaver {
-    partial class Form1 {
+﻿using System.Windows.Forms;
+
+namespace Jira.WallboardScreensaver {
+    partial class ScreensaverForm
+    {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -9,7 +12,8 @@
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing) {
+        protected override void Dispose(bool disposing)
+        {
             if (disposing && (components != null)) {
                 components.Dispose();
             }
@@ -23,9 +27,19 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // ScreensaverForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Name = "ScreensaverForm";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Load += new System.EventHandler(this.OnLoad);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
