@@ -15,7 +15,7 @@ namespace Jira.WallboardScreensaver {
 
             var filter = new UserActivityFilter();
             var form = new ScreensaverForm();
-            new ScreensaverPresenter(filter).Initialize(form);
+            new ScreensaverPresenter(filter, new TaskService()).Initialize(form);
 
             Application.AddMessageFilter(filter);
             Application.Run(form);
