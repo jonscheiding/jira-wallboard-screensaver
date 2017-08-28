@@ -40,17 +40,27 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="Screensaver\IScreensaverView.cs" />
+    <Compile Include="Screensaver\ScreensaverPresenter.cs" />
+    <Compile Include="TaskService.cs" />
+    <Compile Include="UserActivityFilter.cs" />
+    <Compile Include="Screensaver\ScreensaverForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Screensaver\ScreensaverForm.Designer.cs">
+      <DependentUpon>ScreensaverForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Screensaver\ScreensaverForm.resx">
+      <DependentUpon>ScreensaverForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

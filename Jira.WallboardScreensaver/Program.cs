@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Jira.WallboardScreensaver {
+    using Screensaver;
+
     static class Program {
         /// <summary>
         /// The main entry point for the application.
@@ -13,7 +12,13 @@ namespace Jira.WallboardScreensaver {
         static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            var filter = new UserActivityFilter();
+            var form = new ScreensaverForm();
+            new ScreensaverPresenter(filter, new TaskService()).Initialize(form);
+
+            Application.AddMessageFilter(filter);
+            Application.Run(form);
         }
     }
 }
