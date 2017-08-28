@@ -1,7 +1,10 @@
-language: c
+language: csharp
+solution: Jira.WallboardScreensaver.sln
 
 install:
-  - sudo apt-get install mono-devel mono-gmcs 
+  - nuget restore
+  - sudo apt-get install nunit-console
 
 script:
-  - xbuild
+  - msbuild
+  - nunit-console ./Jira.WallboardScreensaver.Tests/bin/Debug/Jira.WallboardScreensaver.Tests.dll
