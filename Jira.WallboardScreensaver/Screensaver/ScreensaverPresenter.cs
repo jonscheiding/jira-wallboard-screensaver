@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Jira.WallboardScreensaver.Screensaver {
-    public class ScreensaverPresenter {
+    public class ScreensaverPresenter : IPresenter<IScreensaverView> {
         private IScreensaverView _view;
         private readonly Preferences _preferences;
         private readonly BrowserService _browser;
