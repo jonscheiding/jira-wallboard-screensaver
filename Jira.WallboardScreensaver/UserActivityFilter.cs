@@ -15,12 +15,9 @@ namespace Jira.WallboardScreensaver
         public bool PreFilterMessage(ref Message m) {
             if ((m.Msg >= WM_MOUSEMOVE && m.Msg <= WM_MBUTTONDBLCLK)
                 || m.Msg == WM_KEYDOWN
-                || m.Msg == WM_KEYUP) {
-
-                if (UserActivity != null)
-                {
-                    UserActivity.Invoke(this, EventArgs.Empty);
-                }
+                || m.Msg == WM_KEYUP)
+            {
+                UserActivity?.Invoke(this, EventArgs.Empty);
             }
             // Always allow message to continue to the next filter control
             return false;
