@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BrowserService.cs" />
+    <Compile Include="IPresenter.cs" />
     <Compile Include="Preferences.cs" />
     <Compile Include="PreferencesService.cs" />
     <Compile Include="Screensaver\IScreensaverView.cs" />
