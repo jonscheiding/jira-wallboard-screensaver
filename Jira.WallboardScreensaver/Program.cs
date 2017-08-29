@@ -27,7 +27,7 @@ namespace Jira.WallboardScreensaver {
                     return;
                 case "/s":
                     var key = Registry.CurrentUser.CreateSubKey(@"Software\Jira Wallboard Screensaver");
-                    var filter = new UserActivityFilter();
+                    var filter = new UserActivityFilter { IdleTimeout = TimeSpan.FromSeconds(5) };
                     form = new ScreensaverForm();
 
                     new ScreensaverPresenter(
@@ -36,6 +36,9 @@ namespace Jira.WallboardScreensaver {
                         filter,
                         new TaskService()
                     ).Initialize((ScreensaverForm)form);
+
+                    Application.AddMessageFilter(filter);
+
                     break;
                 default:
                     throw new ArgumentException($"Unknown argument value: `${args[0]}`.");

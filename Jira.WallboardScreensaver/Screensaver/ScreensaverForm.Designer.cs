@@ -28,6 +28,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
         /// </summary>
         private void InitializeComponent() {
             this.webBrowser = new System.Windows.Forms.WebBrowser();
+            this.exitButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // webBrowser
@@ -42,11 +43,24 @@ namespace Jira.WallboardScreensaver.Screensaver {
             this.webBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.OnWebBrowserNavigated);
             this.webBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.OnWebBrowserNavigating);
             // 
+            // exitButton
+            // 
+            this.exitButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.exitButton.Location = new System.Drawing.Point(245, 13);
+            this.exitButton.Name = "exitButton";
+            this.exitButton.Size = new System.Drawing.Size(27, 23);
+            this.exitButton.TabIndex = 1;
+            this.exitButton.Text = "X";
+            this.exitButton.UseVisualStyleBackColor = true;
+            this.exitButton.Visible = false;
+            this.exitButton.Click += new System.EventHandler(this.OnExitButtonClick);
+            // 
             // ScreensaverForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Controls.Add(this.exitButton);
             this.Controls.Add(this.webBrowser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "ScreensaverForm";
@@ -58,6 +72,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
         #endregion
 
         private WebBrowser webBrowser;
+        private Button exitButton;
     }
 }
 
