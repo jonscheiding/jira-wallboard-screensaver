@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Jira.WallboardScreensaver.Screensaver
 {
@@ -8,5 +9,6 @@ namespace Jira.WallboardScreensaver.Screensaver
         event EventHandler Closed;
         void Close();
         void Show();
+        Task NavigateToAsync(string url);
     }
 }
