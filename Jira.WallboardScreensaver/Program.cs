@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Autofac;
+using Jira.WallboardScreensaver.EditPreferences;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
@@ -50,26 +51,21 @@ namespace Jira.WallboardScreensaver {
         static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            Form form;
-
+            
             switch (args.Select(a => a.ToLowerInvariant()).FirstOrDefault())
             {
                 case null: // Show preferences
                 case "/c": // Show preferences
-                    form = new Form();
+                    Application.Run(Present<EditPreferencesForm, IEditPreferencesView>());
                     break;
                 case "/p": // Show preview (do nothing)
                     return;
                 case "/s":
-                    form = Present<ScreensaverForm, IScreensaverView>();
-
+                    Application.Run(Present<ScreensaverForm, IScreensaverView>());
                     break;
                 default:
                     throw new ArgumentException($"Unknown argument value: `{args[0]}`.");
             }
-
-            Application.Run(form);
         }
     }
 }
