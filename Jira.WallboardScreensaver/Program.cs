@@ -18,7 +18,7 @@ namespace Jira.WallboardScreensaver {
             var filter = new UserActivityFilter();
             var form = new ScreensaverForm();
             new ScreensaverPresenter(
-                new ConfigurationService(), 
+                new Preferences { DashboardUri = new Uri("http://www.google.com") }, 
                 new BrowserService(), 
                 filter, 
                 new TaskService()

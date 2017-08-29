@@ -40,8 +40,8 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationService.cs" />
     <Compile Include="BrowserService.cs" />
+    <Compile Include="Preferences.cs" />
     <Compile Include="Screensaver\IScreensaverView.cs" />
     <Compile Include="Screensaver\ScreensaverPresenter.cs" />
     <Compile Include="TaskService.cs" />
