@@ -6,7 +6,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
         private IScreensaverView _view;
         private readonly UserActivityFilter _filter;
         private readonly TaskService _task;
-        private bool _ignoreUserActivity;
+        private bool _startupDelayInProgress;
 
         public ScreensaverPresenter(UserActivityFilter filter, TaskService task)
         {
@@ -22,24 +22,25 @@ namespace Jira.WallboardScreensaver.Screensaver {
             _view.Load += OnLoad;
         }
 
-        public void Show()
-        {
-            _view.Show();
-        }
-
         private void OnLoad(object sender, EventArgs e) {
-            _ignoreUserActivity = true;
-            _task.Delay(TimeSpan.FromSeconds(1))
-                .ContinueWith(t => _ignoreUserActivity = false);
+            _startupDelayInProgress = true;
+            _task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(t => _startupDelayInProgress = false);
+
+            _view.Navigate("http://www.google.com");
         }
 
         private void OnUserActivity(object sender, EventArgs e)
         {
-            if (_ignoreUserActivity) {
+            if (ShouldIgnoreUserActivity()) {
                 return;
             }
 
             _view.Close();
+        }
+
+        private bool ShouldIgnoreUserActivity()
+        {
+            return _startupDelayInProgress || _view.NavigationInProgress;
         }
     }
 }

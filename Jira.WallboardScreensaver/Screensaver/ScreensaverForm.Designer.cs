@@ -27,13 +27,26 @@ namespace Jira.WallboardScreensaver.Screensaver {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.SuspendLayout();
+            // 
+            // webBrowser
+            // 
+            this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webBrowser.Location = new System.Drawing.Point(0, 0);
+            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser.Name = "webBrowser";
+            this.webBrowser.Size = new System.Drawing.Size(284, 261);
+            this.webBrowser.TabIndex = 0;
+            this.webBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.OnWebBrowserNavigated);
+            this.webBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.OnWebBrowserNavigating);
             // 
             // ScreensaverForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Controls.Add(this.webBrowser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "ScreensaverForm";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -42,6 +55,8 @@ namespace Jira.WallboardScreensaver.Screensaver {
         }
 
         #endregion
+
+        private WebBrowser webBrowser;
     }
 }
 
