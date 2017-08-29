@@ -7,7 +7,6 @@ namespace Jira.WallboardScreensaver.Screensaver {
         private readonly UserActivityFilter _filter;
         private readonly TaskService _task;
         private bool _startupDelayInProgress;
-        private bool _navigationInProgress;
 
         public ScreensaverPresenter(UserActivityFilter filter, TaskService task)
         {
@@ -21,9 +20,6 @@ namespace Jira.WallboardScreensaver.Screensaver {
             _filter.UserActivity += OnUserActivity;
             _view.Closed += (obj, e) => _filter.UserActivity -= OnUserActivity;
             _view.Load += OnLoad;
-
-            _view.Navigating += (obj, e) => _navigationInProgress = true;
-            _view.Navigated += (obj, e) => _navigationInProgress = false;
         }
 
         private void OnLoad(object sender, EventArgs e) {
@@ -44,7 +40,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
 
         private bool ShouldIgnoreUserActivity()
         {
-            return _startupDelayInProgress || _navigationInProgress;
+            return _startupDelayInProgress || _view.NavigationInProgress;
         }
     }
 }

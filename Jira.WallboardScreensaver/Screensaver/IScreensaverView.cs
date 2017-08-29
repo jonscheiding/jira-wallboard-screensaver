@@ -8,9 +8,8 @@ namespace Jira.WallboardScreensaver.Screensaver
     {
         event EventHandler Load;
         event EventHandler Closed;
-        event WebBrowserNavigatedEventHandler Navigated;
-        event WebBrowserNavigatingEventHandler Navigating;
 
+        bool NavigationInProgress { get; }
         void Close();
         void Show();
         void Navigate(string url);

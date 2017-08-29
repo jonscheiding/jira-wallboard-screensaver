@@ -44,7 +44,21 @@ namespace Jira.WallboardScreensaver.Tests
         }
 
         [Test]
-        public void ClosesOnUserActivityAfter1SecondHasElapsed()
+        public void DoesNotCloseOnUserActivityIfNavigationIsInProgress()
+        {
+            _view.NavigationInProgress.Returns(true);
+
+            //
+
+            _filter.UserActivity += Raise.Event();
+
+            //
+
+            _view.DidNotReceive().Close();
+        }
+
+        [Test]
+        public void ClosesOnUserActivityAfterOpenTimeoutOfOneSecondHasElapsed()
         {
             //
 

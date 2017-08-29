@@ -18,16 +18,16 @@ namespace Jira.WallboardScreensaver.Screensaver {
             }
         }
 
-        public event WebBrowserNavigatedEventHandler Navigated
+        public bool NavigationInProgress { get; private set; }
+
+        private void OnWebBrowserNavigated(object sender, WebBrowserNavigatedEventArgs e)
         {
-            add { webBrowser.Navigated += value; }
-            remove { webBrowser.Navigated -= value; }
+            NavigationInProgress = false;
         }
 
-        public event WebBrowserNavigatingEventHandler Navigating
+        private void OnWebBrowserNavigating(object sender, WebBrowserNavigatingEventArgs e)
         {
-            add { webBrowser.Navigating += value; }
-            remove { webBrowser.Navigating -= value; }
+            NavigationInProgress = true;
         }
     }
 }

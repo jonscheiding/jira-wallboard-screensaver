@@ -38,6 +38,8 @@ namespace Jira.WallboardScreensaver.Screensaver {
             this.webBrowser.Name = "webBrowser";
             this.webBrowser.Size = new System.Drawing.Size(284, 261);
             this.webBrowser.TabIndex = 0;
+            this.webBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.OnWebBrowserNavigated);
+            this.webBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.OnWebBrowserNavigating);
             // 
             // ScreensaverForm
             // 
