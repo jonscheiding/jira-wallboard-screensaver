@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Jira.WallboardScreensaver.Screensaver {
     public partial class ScreensaverForm : Form, IScreensaverView
     {
-        private const int NAVIGATION_END_DELAY = 250;
+        private const int NavigationEndDelay = 250;
 
         public ScreensaverForm()
         {
@@ -17,7 +16,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
         public void Navigate(Uri uri) {
             if (uri == null)
             {
-                throw new ArgumentNullException("uri");
+                throw new ArgumentNullException(nameof(uri));
             }
 
             if (webBrowser.InvokeRequired) {
@@ -53,7 +52,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
             //
             // Need a small delay or else navigation sometimes triggers user activity
             //
-            Task.Delay(NAVIGATION_END_DELAY).ContinueWith(t => NavigationInProgress = false);
+            Task.Delay(NavigationEndDelay).ContinueWith(t => NavigationInProgress = false);
         }
 
         private void OnWebBrowserNavigating(object sender, WebBrowserNavigatingEventArgs e)

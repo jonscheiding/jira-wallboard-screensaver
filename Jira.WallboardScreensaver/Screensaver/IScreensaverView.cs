@@ -1,9 +1,6 @@
 using System;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace Jira.WallboardScreensaver.Screensaver
-{
+namespace Jira.WallboardScreensaver.Screensaver {
     public interface IScreensaverView
     {
         event EventHandler Load;

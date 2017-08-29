@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
@@ -58,7 +56,7 @@ namespace Jira.WallboardScreensaver {
                     var parts = cookie.Split(new[] { CookieSeparator }, 2, StringSplitOptions.None);
                     if (parts.Length != 2) {
                         throw new ArgumentException(
-                            $"Invalid cookie setting; expected a string of the form 'key${CookieSeparator}value'.",
+                            $@"Invalid cookie setting; expected a string of the form 'key{CookieSeparator}value'.",
                             LoginCookiesKey);
                     }
                     return parts;

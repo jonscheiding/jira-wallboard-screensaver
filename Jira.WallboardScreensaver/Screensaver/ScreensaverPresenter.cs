@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace Jira.WallboardScreensaver.Screensaver {
     public class ScreensaverPresenter {

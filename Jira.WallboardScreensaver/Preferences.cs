@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Jira.WallboardScreensaver {
     public class Preferences {
         public Preferences()
         {
+            // ReSharper disable once VirtualMemberCallInConstructor
             LoginCookies = new Dictionary<string, string>();
         }
 
