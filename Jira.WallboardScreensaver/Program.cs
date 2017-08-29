@@ -17,7 +17,7 @@ namespace Jira.WallboardScreensaver {
 
             Form form;
 
-            switch (args.FirstOrDefault())
+            switch (args.Select(a => a.ToLowerInvariant()).FirstOrDefault())
             {
                 case null: // Show preferences
                 case "/c": // Show preferences
@@ -41,7 +41,7 @@ namespace Jira.WallboardScreensaver {
 
                     break;
                 default:
-                    throw new ArgumentException($"Unknown argument value: `${args[0]}`.");
+                    throw new ArgumentException($"Unknown argument value: `{args[0]}`.");
             }
 
             Application.Run(form);
