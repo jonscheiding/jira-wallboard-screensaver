@@ -1,6 +1,6 @@
 ﻿namespace Jira.WallboardScreensaver {
     public class CookieService
     {
-        public virtual void SetCookie(string name, string value) { }
+        public virtual void SetCookie(Uri uri, KeyValuePair<string, string> cookie) { }
     }
 }

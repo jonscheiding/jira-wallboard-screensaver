@@ -86,8 +86,8 @@ namespace Jira.WallboardScreensaver.Tests
         [Test]
         public void DisplaysConfiguredUrlOnLoad()
         {
-            const string url = "http://google.com/";
-            _configService.DashboardUri.Returns(new Uri(url));
+            var uri = new Uri("http://google.com/");
+            _configService.DashboardUri.Returns(uri);
 
             //
 
@@ -96,13 +96,16 @@ namespace Jira.WallboardScreensaver.Tests
 
             //
 
-            _view.Received(1).Navigate(url);
+            _view.Received(1).Navigate(uri);
         }
 
         [Test]
         public void SetsCookieOnInitialize()
         {
+            var uri = new Uri("http://www.google.com/some_uri");
             var cookie = new KeyValuePair<string, string>("name", "value");
+
+            _configService.DashboardUri.Returns(uri);
             _configService.LoginCookie.Returns(cookie);
 
             //
@@ -111,7 +114,7 @@ namespace Jira.WallboardScreensaver.Tests
             
             //
 
-            _cookieService.Received(1).SetCookie(cookie.Key, cookie.Value);
+            _cookieService.Received(1).SetCookie(uri, cookie);
         }
     }
 }

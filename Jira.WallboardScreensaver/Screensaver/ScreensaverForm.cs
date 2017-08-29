@@ -12,11 +12,16 @@ namespace Jira.WallboardScreensaver.Screensaver {
             InitializeComponent();
         }
 
-        public void Navigate(string url) {
+        public void Navigate(Uri uri) {
+            if (uri == null)
+            {
+                throw new ArgumentNullException("uri");
+            }
+
             if (webBrowser.InvokeRequired) {
-                webBrowser.Invoke((Action)(() => Navigate(url)));
+                webBrowser.Invoke((Action)(() => Navigate(uri)));
             } else {
-                webBrowser.Navigate(url);
+                webBrowser.Navigate(uri.ToString());
             }
         }
 

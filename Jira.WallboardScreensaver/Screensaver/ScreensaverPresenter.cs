@@ -29,7 +29,12 @@ namespace Jira.WallboardScreensaver.Screensaver {
             _view.Closed += (obj, e) => _filter.UserActivity -= OnUserActivity;
             _view.Load += OnLoad;
 
-            _cookies.SetCookie(_config.LoginCookie.Key, _config.LoginCookie.Value);
+            if (_config.DashboardUri != null)
+            {
+                _cookies.SetCookie(
+                    _config.DashboardUri, 
+                    _config.LoginCookie);
+            }
         }
 
         private void OnLoad(object sender, EventArgs e) {
@@ -38,7 +43,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
 
             if (_config.DashboardUri != null)
             {
-                _view.Navigate(_config.DashboardUri.ToString());
+                _view.Navigate(_config.DashboardUri);
             }
         }
 
