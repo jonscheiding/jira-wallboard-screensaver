@@ -1,12 +1,48 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
+using Autofac;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
     using Screensaver;
 
-    static class Program {
+    internal static class Program {
+        private static readonly IContainer Container = BuildContainer();
+
+        private static IContainer BuildContainer()
+        {
+            var builder = new ContainerBuilder();
+            var assembly = Assembly.GetExecutingAssembly();
+
+            builder.RegisterInstance(Registry.CurrentUser.CreateSubKey(@"Software\Jira Wallboard Screensaver"));
+
+            builder.RegisterType<UserActivityFilter>()
+                .WithProperty(nameof(UserActivityFilter.IdleTimeout), TimeSpan.FromSeconds(3))
+                .OnActivated(e => Application.AddMessageFilter(e.Instance));
+
+            builder.RegisterAdapter<PreferencesService, Preferences>(svc => svc.GetPreferences());
+
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.Name.EndsWith("Presenter"))
+                .AsImplementedInterfaces();
+
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.Name.EndsWith("Service"))
+                .AsSelf();
+
+            return builder.Build();
+        }
+
+        private static TForm Present<TForm, TView>() where TForm : Form, TView, new()
+        {
+            var form = new TForm();
+            var presenter = Container.Resolve<IPresenter<TView>>();
+            presenter.Initialize(form);
+            return form;
+        }
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -26,18 +62,7 @@ namespace Jira.WallboardScreensaver {
                 case "/p": // Show preview (do nothing)
                     return;
                 case "/s":
-                    var key = Registry.CurrentUser.CreateSubKey(@"Software\Jira Wallboard Screensaver");
-                    var filter = new UserActivityFilter { IdleTimeout = TimeSpan.FromSeconds(5) };
-                    form = new ScreensaverForm();
-
-                    new ScreensaverPresenter(
-                        new PreferencesService(key).GetPreferences(),
-                        new BrowserService(),
-                        filter,
-                        new TaskService()
-                    ).Initialize((ScreensaverForm)form);
-
-                    Application.AddMessageFilter(filter);
+                    form = Present<ScreensaverForm, IScreensaverView>();
 
                     break;
                 default:
