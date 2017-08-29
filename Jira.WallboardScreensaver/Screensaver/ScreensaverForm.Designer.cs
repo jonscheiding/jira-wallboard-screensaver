@@ -36,6 +36,7 @@ namespace Jira.WallboardScreensaver.Screensaver {
             this.webBrowser.Location = new System.Drawing.Point(0, 0);
             this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser.Name = "webBrowser";
+            this.webBrowser.ScriptErrorsSuppressed = true;
             this.webBrowser.Size = new System.Drawing.Size(284, 261);
             this.webBrowser.TabIndex = 0;
             this.webBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.OnWebBrowserNavigated);

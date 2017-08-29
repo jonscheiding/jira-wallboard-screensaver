@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
     using Screensaver;
@@ -25,10 +26,16 @@ namespace Jira.WallboardScreensaver {
                 case "/p": // Show preview (do nothing)
                     return;
                 case "/s":
+                    var key = Registry.CurrentUser.CreateSubKey(@"Software\Jira Wallboard Screensaver");
                     var filter = new UserActivityFilter();
                     form = new ScreensaverForm();
-                    new ScreensaverPresenter(filter, new TaskService()).Initialize((ScreensaverForm)form);
-                    Application.AddMessageFilter(filter);
+
+                    new ScreensaverPresenter(
+                        new PreferencesService(key).GetPreferences(),
+                        new BrowserService(),
+                        filter,
+                        new TaskService()
+                    ).Initialize((ScreensaverForm)form);
                     break;
                 default:
                     throw new ArgumentException($"Unknown argument value: `${args[0]}`.");

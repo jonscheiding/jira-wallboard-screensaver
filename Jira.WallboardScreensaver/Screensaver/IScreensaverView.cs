@@ -12,6 +12,6 @@ namespace Jira.WallboardScreensaver.Screensaver
         bool NavigationInProgress { get; }
         void Close();
         void Show();
-        void Navigate(string url);
+        void Navigate(Uri uri);
     }
 }
