@@ -4,10 +4,11 @@ solution: Jira.WallboardScreensaver.sln
 env:
   - CONFIGURATION=Release
 
-install:
-  - nuget restore
-  - sudo apt-get install nunit-console
-
 script:
   - msbuild /p:Configuration=$CONFIGURATION
   - nunit-console ./*/bin/*/*.Tests.dll
+
+addons:
+  apt:
+    packages:
+      - nunit-console
