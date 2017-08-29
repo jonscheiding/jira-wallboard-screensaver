@@ -31,11 +31,14 @@ namespace Jira.WallboardScreensaver.Screensaver {
 
             _browser.ConfigureEmulation();
 
-            if (_config.DashboardUri != null)
+            if (_config.DashboardUri != null && _config.LoginCookies != null)
             {
-                _browser.SetCookie(
-                    _config.DashboardUri, 
-                    _config.LoginCookie);
+                var baseUri = new Uri(_config.DashboardUri, "/");
+
+                foreach (var cookie in _config.LoginCookies)
+                {
+                    _browser.SetCookie(baseUri, cookie.Key, cookie.Value);
+                }
             }
         }
 

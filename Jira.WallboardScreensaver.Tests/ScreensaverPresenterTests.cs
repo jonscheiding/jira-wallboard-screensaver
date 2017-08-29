@@ -100,21 +100,27 @@ namespace Jira.WallboardScreensaver.Tests
         }
 
         [Test]
-        public void SetsCookieAndConfiguresEmulationOnInitialize()
+        public void SetsCookiesAndConfiguresEmulationOnInitialize()
         {
             var uri = new Uri("http://www.google.com/some_uri");
-            var cookie = new KeyValuePair<string, string>("name", "value");
+            var baseUri = new Uri("http://www.google.com/");
+            var cookies = new Dictionary<string, string>
+            {
+                { "cookie1", "value1" },
+                { "cookie2", "value2" }
+            };
 
             _configService.DashboardUri.Returns(uri);
-            _configService.LoginCookie.Returns(cookie);
+            _configService.LoginCookies.Returns(cookies);
 
             //
 
             _presenter.Initialize(_view);
-            
+
             //
 
-            _browserService.Received(1).SetCookie(uri, cookie);
+            _browserService.Received(1).SetCookie(baseUri, "cookie1", "value1");
+            _browserService.Received(1).SetCookie(baseUri, "cookie2", "value2");
             _browserService.Received(1).ConfigureEmulation();
         }
     }

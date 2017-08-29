@@ -10,10 +10,9 @@ namespace Jira.WallboardScreensaver {
         [DllImport("wininet.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool InternetSetCookie(string lpszUrlName, string lbszCookieName, string lpszCookieData);
 
-        public virtual void SetCookie(Uri uri, KeyValuePair<string, string> cookie)
+        public virtual void SetCookie(Uri baseUri, string name, string value)
         {
-            var baseUri = new Uri(uri, "/");
-            InternetSetCookie(baseUri.ToString(), cookie.Key, cookie.Value);
+            InternetSetCookie(baseUri.ToString(), name, value);
         }
 
         public virtual void ConfigureEmulation()
