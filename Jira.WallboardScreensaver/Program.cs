@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
     using Screensaver;
@@ -17,7 +19,7 @@ namespace Jira.WallboardScreensaver {
             var form = new ScreensaverForm();
             new ScreensaverPresenter(
                 new ConfigurationService(), 
-                new CookieService(), 
+                new BrowserService(), 
                 filter, 
                 new TaskService()
             ).Initialize(form);

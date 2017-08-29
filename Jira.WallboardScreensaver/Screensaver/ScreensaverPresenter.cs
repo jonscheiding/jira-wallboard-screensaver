@@ -5,19 +5,19 @@ namespace Jira.WallboardScreensaver.Screensaver {
     public class ScreensaverPresenter {
         private IScreensaverView _view;
         private readonly ConfigurationService _config;
-        private readonly CookieService _cookies;
+        private readonly BrowserService _browser;
         private readonly UserActivityFilter _filter;
         private readonly TaskService _task;
         private bool _startupDelayInProgress;
 
         public ScreensaverPresenter(
             ConfigurationService config, 
-            CookieService cookies, 
+            BrowserService browser, 
             UserActivityFilter filter,
             TaskService task)
         {
             _config = config;
-            _cookies = cookies;
+            _browser = browser;
             _filter = filter;
             _task = task;
         }
@@ -29,9 +29,11 @@ namespace Jira.WallboardScreensaver.Screensaver {
             _view.Closed += (obj, e) => _filter.UserActivity -= OnUserActivity;
             _view.Load += OnLoad;
 
+            _browser.ConfigureEmulation();
+
             if (_config.DashboardUri != null)
             {
-                _cookies.SetCookie(
+                _browser.SetCookie(
                     _config.DashboardUri, 
                     _config.LoginCookie);
             }

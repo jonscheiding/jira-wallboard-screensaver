@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationService.cs" />
-    <Compile Include="CookieService.cs" />
+    <Compile Include="BrowserService.cs" />
     <Compile Include="Screensaver\IScreensaverView.cs" />
     <Compile Include="Screensaver\ScreensaverPresenter.cs" />
     <Compile Include="TaskService.cs" />

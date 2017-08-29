@@ -17,7 +17,7 @@ namespace Jira.WallboardScreensaver.Tests
         private TaskCompletionSource<object> _task;
         private TaskService _taskService;
         private ConfigurationService _configService;
-        private CookieService _cookieService;
+        private BrowserService _browserService;
 
         [SetUp]
         public void SetUp()
@@ -25,13 +25,13 @@ namespace Jira.WallboardScreensaver.Tests
             _task = new TaskCompletionSource<object>();
             _taskService = Substitute.For<TaskService>();
             _configService = Substitute.For<ConfigurationService>();
-            _cookieService = Substitute.For<CookieService>();
+            _browserService = Substitute.For<BrowserService>();
             _view = Substitute.For<IScreensaverView>();
             _filter = Substitute.For<UserActivityFilter>();
 
             _taskService.Delay(Arg.Any<TimeSpan>()).Returns(_task.Task);
 
-            _presenter = new ScreensaverPresenter(_configService, _cookieService, _filter, _taskService);
+            _presenter = new ScreensaverPresenter(_configService, _browserService, _filter, _taskService);
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace Jira.WallboardScreensaver.Tests
         }
 
         [Test]
-        public void SetsCookieOnInitialize()
+        public void SetsCookieAndConfiguresEmulationOnInitialize()
         {
             var uri = new Uri("http://www.google.com/some_uri");
             var cookie = new KeyValuePair<string, string>("name", "value");
@@ -114,7 +114,8 @@ namespace Jira.WallboardScreensaver.Tests
             
             //
 
-            _cookieService.Received(1).SetCookie(uri, cookie);
+            _browserService.Received(1).SetCookie(uri, cookie);
+            _browserService.Received(1).ConfigureEmulation();
         }
     }
 }
