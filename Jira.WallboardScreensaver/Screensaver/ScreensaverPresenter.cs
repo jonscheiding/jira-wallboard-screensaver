@@ -21,15 +21,16 @@ namespace Jira.WallboardScreensaver.Screensaver {
             _filter.UserActivity += OnUserActivity;
             _view.Closed += (obj, e) => _filter.UserActivity -= OnUserActivity;
             _view.Load += OnLoad;
+
+            _view.Navigating += (obj, e) => _navigationInProgress = true;
+            _view.Navigated += (obj, e) => _navigationInProgress = false;
         }
 
         private void OnLoad(object sender, EventArgs e) {
             _startupDelayInProgress = true;
-            _navigationInProgress = true;
-
             _task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(t => _startupDelayInProgress = false);
 
-            _view.NavigateToAsync("http://www.google.com").ContinueWith(t => _navigationInProgress = false);
+            _view.Navigate("http://www.google.com");
         }
 
         private void OnUserActivity(object sender, EventArgs e)
