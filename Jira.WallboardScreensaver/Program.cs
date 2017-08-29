@@ -15,10 +15,12 @@ namespace Jira.WallboardScreensaver {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            var key = Registry.CurrentUser.CreateSubKey(@"Software\Jira Wallboard Screensaver");
+
             var filter = new UserActivityFilter();
             var form = new ScreensaverForm();
             new ScreensaverPresenter(
-                new Preferences { DashboardUri = new Uri("http://www.google.com") }, 
+                new PreferencesService(key).GetPreferences(), 
                 new BrowserService(), 
                 filter, 
                 new TaskService()
