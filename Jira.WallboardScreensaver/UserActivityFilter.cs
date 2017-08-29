@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Timer = System.Threading.Timer;
 
-namespace Jira.WallboardScreensaver
-{
+namespace Jira.WallboardScreensaver {
     public class UserActivityFilter : IMessageFilter {
         public TimeSpan IdleTimeout { get; set; }
 
@@ -18,9 +14,13 @@ namespace Jira.WallboardScreensaver
             _timer = new Timer(FireIdleEvent);
         }
 
+        // ReSharper disable once InconsistentNaming
         private const int WM_MOUSEMOVE = 0x0200;
+        // ReSharper disable once InconsistentNaming
         private const int WM_MBUTTONDBLCLK = 0x209;
+        // ReSharper disable once InconsistentNaming
         private const int WM_KEYDOWN = 0x100;
+        // ReSharper disable once InconsistentNaming
         private const int WM_KEYUP = 0x101;
 
         private readonly Timer _timer;
