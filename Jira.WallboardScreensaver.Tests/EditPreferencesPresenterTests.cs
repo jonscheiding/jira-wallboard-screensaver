@@ -75,6 +75,28 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void CanSavePreferencesWhenCookiesAreEmpty() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("http://www.google.com/");
+            _view.LoginCookies.Returns("");
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _preferences.Received().SetPreferences(Arg.Do<Preferences>(p => {
+                Assert.That(p.DashboardUri, Is.EqualTo(new Uri("http://www.google.com/")));
+                Assert.That(p.LoginCookies, Is.EquivalentTo(new[]
+                {
+                    new KeyValuePair<string, string>("cookie1", "value1"),
+                }));
+            }));
+        }
+
+        [Test]
         public void DoesNotSavePreferencesWhenCancelButtonClicked()
         {
             _preferences.GetPreferences().Returns(new Preferences());
