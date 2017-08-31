@@ -4,20 +4,20 @@ namespace Jira.WallboardScreensaver.Screensaver {
     public class ScreensaverPresenter : IPresenter<IScreensaverView> {
         private IScreensaverView _view;
         private readonly Preferences _preferences;
-        private readonly BrowserService _browser;
-        private readonly UserActivityFilter _filter;
-        private readonly TaskService _task;
+        private readonly IBrowserService _browser;
+        private readonly IUserActivityService _userActivity;
+        private readonly ITaskService _task;
         private bool _ignoringUserActivity;
 
         public ScreensaverPresenter(
             Preferences preferences, 
-            BrowserService browser, 
-            UserActivityFilter filter,
-            TaskService task)
+            IBrowserService browser, 
+            IUserActivityService userActivity,
+            ITaskService task)
         {
             _preferences = preferences;
             _browser = browser;
-            _filter = filter;
+            _userActivity = userActivity;
             _task = task;
         }
 
@@ -27,12 +27,12 @@ namespace Jira.WallboardScreensaver.Screensaver {
             _view.Load += OnLoad;
             _view.ExitButtonClicked += (obj, e) => _view.Close();
 
-            _filter.UserActive += OnUserActive;
-            _filter.UserIdle += OnUserIdle;
+            _userActivity.UserActive += OnUserActive;
+            _userActivity.UserIdle += OnUserIdle;
             _view.Closed += (obj, e) =>
             {
-                _filter.UserActive -= OnUserActive;
-                _filter.UserIdle -= OnUserIdle;
+                _userActivity.UserActive -= OnUserActive;
+                _userActivity.UserIdle -= OnUserIdle;
             };
 
             _browser.ConfigureEmulation();

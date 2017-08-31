@@ -4,7 +4,13 @@ using System.Linq;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
-    public class PreferencesService {
+    public interface IPreferencesService
+    {
+        Preferences GetPreferences();
+        void SetPreferences(Preferences preferences);
+    }
+
+    public class PreferencesService : IPreferencesService {
         private readonly RegistryKey _key;
 
         public const string DashboardUriKey = "DashboardUri";
@@ -23,6 +29,20 @@ namespace Jira.WallboardScreensaver {
                 DashboardUri = ReadDashboardUri(_key),
                 LoginCookies = ReadLoginCookies(_key)
             };
+        }
+
+        public void SetPreferences(Preferences preferences) {
+            if (preferences.DashboardUri == null)
+            {
+                _key.DeleteValue(DashboardUriKey, false);
+            }
+            else
+            {
+                _key.SetValue(DashboardUriKey, preferences.DashboardUri.ToString());
+            }
+
+            _key.SetValue(LoginCookiesKey,
+                preferences.LoginCookies.Select(kv => $@"{kv.Key}{CookieSeparator}{kv.Value}").ToArray());
         }
 
         private static Uri ReadDashboardUri(RegistryKey key)
@@ -63,5 +83,6 @@ namespace Jira.WallboardScreensaver {
                 })
                 .ToDictionary(kv => kv[0], kv => kv[1]);
         }
+
     }
 }

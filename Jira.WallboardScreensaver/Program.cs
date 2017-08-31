@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Autofac;
+using Jira.WallboardScreensaver.EditPreferences;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
@@ -18,9 +19,10 @@ namespace Jira.WallboardScreensaver {
 
             builder.RegisterInstance(Registry.CurrentUser.CreateSubKey(@"Software\Jira Wallboard Screensaver"));
 
-            builder.RegisterType<UserActivityFilter>()
-                .WithProperty(nameof(UserActivityFilter.IdleTimeout), TimeSpan.FromSeconds(3))
-                .OnActivated(e => Application.AddMessageFilter(e.Instance));
+            builder.RegisterType<UserActivityService>()
+                .WithProperty(nameof(UserActivityService.IdleTimeout), TimeSpan.FromSeconds(3))
+                .OnActivated(e => Application.AddMessageFilter(e.Instance))
+                .AsImplementedInterfaces();
 
             builder.RegisterAdapter<PreferencesService, Preferences>(svc => svc.GetPreferences());
 
@@ -29,8 +31,8 @@ namespace Jira.WallboardScreensaver {
                 .AsImplementedInterfaces();
 
             builder.RegisterAssemblyTypes(assembly)
-                .Where(t => t.Name.EndsWith("Service"))
-                .AsSelf();
+                .Where(t => t.Name.EndsWith("Service") && t != typeof(UserActivityService))
+                .AsImplementedInterfaces();
 
             return builder.Build();
         }
@@ -50,26 +52,21 @@ namespace Jira.WallboardScreensaver {
         static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            Form form;
-
+            
             switch (args.Select(a => a.ToLowerInvariant()).FirstOrDefault())
             {
                 case null: // Show preferences
                 case "/c": // Show preferences
-                    form = new Form();
+                    Application.Run(Present<EditPreferencesForm, IEditPreferencesView>());
                     break;
                 case "/p": // Show preview (do nothing)
                     return;
                 case "/s":
-                    form = Present<ScreensaverForm, IScreensaverView>();
-
+                    Application.Run(Present<ScreensaverForm, IScreensaverView>());
                     break;
                 default:
                     throw new ArgumentException($"Unknown argument value: `{args[0]}`.");
             }
-
-            Application.Run(form);
         }
     }
 }

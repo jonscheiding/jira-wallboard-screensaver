@@ -39,18 +39,28 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BrowserService.cs" />
+    <Compile Include="EditPreferences\EditPreferencesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditPreferences\EditPreferencesForm.Designer.cs">
+      <DependentUpon>EditPreferencesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditPreferences\EditPreferencesPresenter.cs" />
+    <Compile Include="EditPreferences\IEditPreferencesView.cs" />
     <Compile Include="IPresenter.cs" />
     <Compile Include="Preferences.cs" />
     <Compile Include="PreferencesService.cs" />
     <Compile Include="Screensaver\IScreensaverView.cs" />
     <Compile Include="Screensaver\ScreensaverPresenter.cs" />
     <Compile Include="TaskService.cs" />
-    <Compile Include="UserActivityFilter.cs" />
+    <Compile Include="UserActivityService.cs" />
     <Compile Include="Screensaver\ScreensaverForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -65,6 +75,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="EditPreferences\EditPreferencesForm.resx">
+      <DependentUpon>EditPreferencesForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Screensaver\ScreensaverForm.resx">
       <DependentUpon>ScreensaverForm.cs</DependentUpon>
       <SubType>Designer</SubType>

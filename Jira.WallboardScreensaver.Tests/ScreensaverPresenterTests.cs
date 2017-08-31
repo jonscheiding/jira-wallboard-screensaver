@@ -12,21 +12,19 @@ namespace Jira.WallboardScreensaver.Tests
     public class ScreensaverPresenterTests
     {
         private IScreensaverView _view;
-        private UserActivityFilter _filter;
-        private ScreensaverPresenter _presenter;
-        private TaskCompletionSource<object> _task;
-        private TaskService _taskService;
-        private BrowserService _browserService;
+        private IUserActivityService _filter;
+        private ITaskService _taskService;
+        private IBrowserService _browserService;
         private Preferences _preferences;
+        private ScreensaverPresenter _presenter;
 
         [SetUp]
         public void SetUp()
         {
-            _task = new TaskCompletionSource<object>();
-            _taskService = Substitute.For<TaskService>();
-            _browserService = Substitute.For<BrowserService>();
+            _taskService = Substitute.For<ITaskService>();
+            _browserService = Substitute.For<IBrowserService>();
             _view = Substitute.For<IScreensaverView>();
-            _filter = Substitute.For<UserActivityFilter>();
+            _filter = Substitute.For<IUserActivityService>();
             _preferences = Substitute.For<Preferences>();
 
             _taskService.Delay(Arg.Any<TimeSpan>()).Returns(Task.CompletedTask);
@@ -39,7 +37,6 @@ namespace Jira.WallboardScreensaver.Tests
         {
             _presenter.Initialize(_view);
             _view.Load += Raise.Event();
-            _task.SetResult(null);
 
             //
 
