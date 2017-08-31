@@ -17,8 +17,13 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         {
             var preferences = _preferences.GetPreferences();
 
-            view.DashboardUrl = preferences.DashboardUri.ToString();
+            if (preferences.DashboardUri != null)
+            {
+                view.DashboardUrl = preferences.DashboardUri.ToString();
+            }
+
             view.LoginCookies = string.Join(";", preferences.LoginCookies.Select(kv => $@"{kv.Key}={kv.Value}"));
+
             view.CancelButtonClicked += (o, args) => view.Close();
             view.SaveButtonClicked += (o, args) =>
             {
