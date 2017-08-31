@@ -4,7 +4,13 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
-    public class BrowserService
+    public interface IBrowserService
+    {
+        void SetCookie(Uri baseUri, string name, string value);
+        void ConfigureEmulation();
+    }
+
+    public class BrowserService : IBrowserService
     {
         [DllImport("wininet.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern bool InternetSetCookie(string lpszUrlName, string lbszCookieName, string lpszCookieData);

@@ -3,13 +3,20 @@ using System.Windows.Forms;
 using Timer = System.Threading.Timer;
 
 namespace Jira.WallboardScreensaver {
-    public class UserActivityFilter : IMessageFilter {
+    public interface IUserActivityService
+    {
+        event EventHandler<EventArgs> UserActive;
+        event EventHandler<EventArgs> UserIdle;
+    }
+
+    public class UserActivityService : IMessageFilter, IUserActivityService
+    {
         public TimeSpan IdleTimeout { get; set; }
 
         public virtual event EventHandler<EventArgs> UserActive;
         public virtual event EventHandler<EventArgs> UserIdle;
 
-        public UserActivityFilter()
+        public UserActivityService()
         {
             _timer = new Timer(FireIdleEvent);
         }

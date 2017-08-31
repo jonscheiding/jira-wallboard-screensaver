@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Jira.WallboardScreensaver.EditPreferences {
     public class EditPreferencesPresenter : IPresenter<IEditPreferencesView> {
-        private readonly PreferencesService _preferences;
+        private readonly IPreferencesService _preferences;
 
-        public EditPreferencesPresenter(PreferencesService preferences)
+        public EditPreferencesPresenter(IPreferencesService preferences)
         {
             _preferences = preferences;
         }

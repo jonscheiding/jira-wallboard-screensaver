@@ -4,7 +4,13 @@ using System.Linq;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
-    public class PreferencesService {
+    public interface IPreferencesService
+    {
+        Preferences GetPreferences();
+        void SetPreferences(Preferences preferences);
+    }
+
+    public class PreferencesService : IPreferencesService {
         private readonly RegistryKey _key;
 
         public const string DashboardUriKey = "DashboardUri";

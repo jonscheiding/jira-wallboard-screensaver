@@ -19,9 +19,10 @@ namespace Jira.WallboardScreensaver {
 
             builder.RegisterInstance(Registry.CurrentUser.CreateSubKey(@"Software\Jira Wallboard Screensaver"));
 
-            builder.RegisterType<UserActivityFilter>()
-                .WithProperty(nameof(UserActivityFilter.IdleTimeout), TimeSpan.FromSeconds(3))
-                .OnActivated(e => Application.AddMessageFilter(e.Instance));
+            builder.RegisterType<UserActivityService>()
+                .WithProperty(nameof(UserActivityService.IdleTimeout), TimeSpan.FromSeconds(3))
+                .OnActivated(e => Application.AddMessageFilter(e.Instance))
+                .AsImplementedInterfaces();
 
             builder.RegisterAdapter<PreferencesService, Preferences>(svc => svc.GetPreferences());
 
@@ -30,8 +31,8 @@ namespace Jira.WallboardScreensaver {
                 .AsImplementedInterfaces();
 
             builder.RegisterAssemblyTypes(assembly)
-                .Where(t => t.Name.EndsWith("Service"))
-                .AsSelf();
+                .Where(t => t.Name.EndsWith("Service") && t != typeof(UserActivityService))
+                .AsImplementedInterfaces();
 
             return builder.Build();
         }
