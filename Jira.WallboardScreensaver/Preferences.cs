@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace Jira.WallboardScreensaver {
     public class Preferences {
-        public Preferences()
-        {
+        public Preferences() {
             // ReSharper disable once VirtualMemberCallInConstructor
             LoginCookies = new Dictionary<string, string>();
         }

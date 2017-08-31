@@ -4,16 +4,14 @@ using System.Reflection;
 using System.Windows.Forms;
 using Autofac;
 using Jira.WallboardScreensaver.EditPreferences;
+using Jira.WallboardScreensaver.Screensaver;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {
-    using Screensaver;
-
     internal static class Program {
         private static readonly IContainer Container = BuildContainer();
 
-        private static IContainer BuildContainer()
-        {
+        private static IContainer BuildContainer() {
             var builder = new ContainerBuilder();
             var assembly = Assembly.GetExecutingAssembly();
 
@@ -37,8 +35,7 @@ namespace Jira.WallboardScreensaver {
             return builder.Build();
         }
 
-        private static TForm Present<TForm, TView>() where TForm : Form, TView, new()
-        {
+        private static TForm Present<TForm, TView>() where TForm : Form, TView, new() {
             var form = new TForm();
             var presenter = Container.Resolve<IPresenter<TView>>();
             presenter.Initialize(form);
@@ -46,15 +43,14 @@ namespace Jira.WallboardScreensaver {
         }
 
         /// <summary>
-        /// The main entry point for the application.
+        ///     The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args) {
+        private static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
-            switch (args.Select(a => a.ToLowerInvariant()).FirstOrDefault())
-            {
+
+            switch (args.Select(a => a.ToLowerInvariant()).FirstOrDefault()) {
                 case null: // Show preferences
                 case "/c": // Show preferences
                     Application.Run(Present<EditPreferencesForm, IEditPreferencesView>());

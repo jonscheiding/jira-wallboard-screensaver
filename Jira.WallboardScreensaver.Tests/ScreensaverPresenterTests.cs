@@ -6,21 +6,11 @@ using Jira.WallboardScreensaver.Screensaver;
 using NSubstitute;
 using NUnit.Framework;
 
-namespace Jira.WallboardScreensaver.Tests
-{
+namespace Jira.WallboardScreensaver.Tests {
     [TestFixture]
-    public class ScreensaverPresenterTests
-    {
-        private IScreensaverView _view;
-        private IUserActivityService _filter;
-        private ITaskService _taskService;
-        private IBrowserService _browserService;
-        private Preferences _preferences;
-        private ScreensaverPresenter _presenter;
-
+    public class ScreensaverPresenterTests {
         [SetUp]
-        public void SetUp()
-        {
+        public void SetUp() {
             _taskService = Substitute.For<ITaskService>();
             _browserService = Substitute.For<IBrowserService>();
             _view = Substitute.For<IScreensaverView>();
@@ -32,24 +22,48 @@ namespace Jira.WallboardScreensaver.Tests
             _presenter = new ScreensaverPresenter(_preferences, _browserService, _filter, _taskService);
         }
 
+        private IScreensaverView _view;
+        private IUserActivityService _filter;
+        private ITaskService _taskService;
+        private IBrowserService _browserService;
+        private Preferences _preferences;
+        private ScreensaverPresenter _presenter;
+
+        private Task TaskThatNeverCompletes() {
+            return new TaskCompletionSource<object>().Task;
+        }
+
         [Test]
-        public void ShowsControlsWhenUserActivityDetected()
-        {
+        public void ClosesWhenExitButtonClicked() {
             _presenter.Initialize(_view);
             _view.Load += Raise.Event();
 
             //
 
-            _filter.UserActive += Raise.Event();
+            _view.ExitButtonClicked += Raise.Event();
 
             //
 
-            _view.Received(1).ControlsVisible = true;
+            _view.Received(1).Close();
         }
 
         [Test]
-        public void HidesControlsWhenUserIdleDetected()
-        {
+        public void DisplaysConfiguredUrlOnLoad() {
+            var uri = new Uri("http://google.com/");
+            _preferences.DashboardUri.Returns(uri);
+
+            //
+
+            _presenter.Initialize(_view);
+            _view.Load += Raise.Event();
+
+            //
+
+            _view.Received(1).Navigate(uri);
+        }
+
+        [Test]
+        public void HidesControlsWhenUserIdleDetected() {
             _presenter.Initialize(_view);
             _view.Load += Raise.Event();
 
@@ -64,8 +78,7 @@ namespace Jira.WallboardScreensaver.Tests
         }
 
         [Test]
-        public void IgnoresUserActivityForOneSecondAfterInitialization() 
-        {
+        public void IgnoresUserActivityForOneSecondAfterInitialization() {
             _taskService.Delay(Arg.Any<TimeSpan>()).Returns(TaskThatNeverCompletes());
             _presenter.Initialize(_view);
             _view.Load += Raise.Event();
@@ -81,8 +94,7 @@ namespace Jira.WallboardScreensaver.Tests
         }
 
         [Test]
-        public void IgnoresUserActivityForOneSecondAfterUserIdle() 
-        {
+        public void IgnoresUserActivityForOneSecondAfterUserIdle() {
             _presenter.Initialize(_view);
             _view.Load += Raise.Event();
 
@@ -101,45 +113,12 @@ namespace Jira.WallboardScreensaver.Tests
         }
 
         [Test]
-        public void ClosesWhenExitButtonClicked()
-        {
-            _presenter.Initialize(_view);
-            _view.Load += Raise.Event();
-
-            //
-
-            _view.ExitButtonClicked += Raise.Event();
-
-            //
-
-            _view.Received(1).Close();
-        }
-
-        [Test]
-        public void DisplaysConfiguredUrlOnLoad()
-        {
-            var uri = new Uri("http://google.com/");
-            _preferences.DashboardUri.Returns(uri);
-
-            //
-
-            _presenter.Initialize(_view);
-            _view.Load += Raise.Event();
-
-            //
-
-            _view.Received(1).Navigate(uri);
-        }
-
-        [Test]
-        public void SetsCookiesAndConfiguresEmulationOnInitialize()
-        {
+        public void SetsCookiesAndConfiguresEmulationOnInitialize() {
             var uri = new Uri("http://www.google.com/some_uri");
             var baseUri = new Uri("http://www.google.com/");
-            var cookies = new Dictionary<string, string>
-            {
-                { "cookie1", "value1" },
-                { "cookie2", "value2" }
+            var cookies = new Dictionary<string, string> {
+                {"cookie1", "value1"},
+                {"cookie2", "value2"}
             };
 
             _preferences.DashboardUri.Returns(uri);
@@ -156,9 +135,18 @@ namespace Jira.WallboardScreensaver.Tests
             _browserService.Received(1).ConfigureEmulation();
         }
 
-        private Task TaskThatNeverCompletes()
-        {
-            return new TaskCompletionSource<object>().Task;
+        [Test]
+        public void ShowsControlsWhenUserActivityDetected() {
+            _presenter.Initialize(_view);
+            _view.Load += Raise.Event();
+
+            //
+
+            _filter.UserActive += Raise.Event();
+
+            //
+
+            _view.Received(1).ControlsVisible = true;
         }
     }
 }

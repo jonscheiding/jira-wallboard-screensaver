@@ -5,17 +5,9 @@ using NUnit.Framework;
 
 namespace Jira.WallboardScreensaver.Tests {
     [TestFixture]
-    public class PreferencesServiceTests
-    {
-        private const string TestSubkeyName = "Jira Wallboard Screensaver Tests";
-
-        private RegistryKey _softwareKey;
-        private RegistryKey _key;
-        private PreferencesService _service;
-
+    public class PreferencesServiceTests {
         [SetUp]
-        public void SetUp()
-        {
+        public void SetUp() {
             _softwareKey = Registry.CurrentUser.OpenSubKey("Software", RegistryKeyPermissionCheck.ReadWriteSubTree);
 
             Debug.Assert(_softwareKey != null);
@@ -24,58 +16,19 @@ namespace Jira.WallboardScreensaver.Tests {
             _service = new PreferencesService(_key);
         }
 
-        [Test]
-        public void ReturnsNullDashboardUriIfNoneIsConfigured()
-        {
-            //
-
-            var p = _service.GetPreferences();
-
-            //
-
-            Assert.That(p.DashboardUri, Is.Null);
+        [TearDown]
+        public void TearDown() {
+            _softwareKey.DeleteSubKeyTree(TestSubkeyName);
         }
 
-        [Test]
-        public void ReturnsDashboardUriIfItIsConfigured()
-        {
-            _key.SetValue(PreferencesService.DashboardUriKey, "http://www.google.com");
+        private const string TestSubkeyName = "Jira Wallboard Screensaver Tests";
 
-            //
-
-            var p = _service.GetPreferences();
-
-            //
-
-            Assert.That(p.DashboardUri, Is.EqualTo(new Uri("http://www.google.com")));
-        }
+        private RegistryKey _softwareKey;
+        private RegistryKey _key;
+        private PreferencesService _service;
 
         [Test]
-        public void ThrowsIfDashboardUriIsNotValid()
-        {
-            _key.SetValue(PreferencesService.DashboardUriKey, "aabnn");
-
-            // //
-
-            Assert.Throws<ArgumentException>(
-                () => _service.GetPreferences());
-        }
-
-        [Test]
-        public void ReturnsEmptyCookieCollectionIfNoneAreConfigured()
-        {
-            //
-
-            var p = _service.GetPreferences();
-
-            //
-
-            Assert.That(p.LoginCookies.Count, Is.Zero);
-        }
-
-        [Test]
-        public void ReturnsCorrectCookieIfOneIsConfigured()
-        {
+        public void ReturnsCorrectCookieIfOneIsConfigured() {
             var cookie = $"cookie{PreferencesService.CookieSeparator}value";
             _key.SetValue(PreferencesService.LoginCookiesKey, new[] {cookie});
 
@@ -94,7 +47,7 @@ namespace Jira.WallboardScreensaver.Tests {
             var cookie1 = $"cookie1{PreferencesService.CookieSeparator}value3";
             var cookie2 = $"cookie2{PreferencesService.CookieSeparator}value2";
             var cookie3 = $"cookie3{PreferencesService.CookieSeparator}value1";
-            _key.SetValue(PreferencesService.LoginCookiesKey, new[] { cookie1, cookie2, cookie3 });
+            _key.SetValue(PreferencesService.LoginCookiesKey, new[] {cookie1, cookie2, cookie3});
 
             //
 
@@ -109,8 +62,42 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void ThrowsIfCookiesAreNotValid()
-        {
+        public void ReturnsDashboardUriIfItIsConfigured() {
+            _key.SetValue(PreferencesService.DashboardUriKey, "http://www.google.com");
+
+            //
+
+            var p = _service.GetPreferences();
+
+            //
+
+            Assert.That(p.DashboardUri, Is.EqualTo(new Uri("http://www.google.com")));
+        }
+
+        [Test]
+        public void ReturnsEmptyCookieCollectionIfNoneAreConfigured() {
+            //
+
+            var p = _service.GetPreferences();
+
+            //
+
+            Assert.That(p.LoginCookies.Count, Is.Zero);
+        }
+
+        [Test]
+        public void ReturnsNullDashboardUriIfNoneIsConfigured() {
+            //
+
+            var p = _service.GetPreferences();
+
+            //
+
+            Assert.That(p.DashboardUri, Is.Null);
+        }
+
+        [Test]
+        public void ThrowsIfCookiesAreNotValid() {
             _key.SetValue(PreferencesService.LoginCookiesKey, new[] {"notacookie"});
 
             // //
@@ -119,10 +106,14 @@ namespace Jira.WallboardScreensaver.Tests {
                 () => _service.GetPreferences());
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            _softwareKey.DeleteSubKeyTree(TestSubkeyName);
+        [Test]
+        public void ThrowsIfDashboardUriIsNotValid() {
+            _key.SetValue(PreferencesService.DashboardUriKey, "aabnn");
+
+            // //
+
+            Assert.Throws<ArgumentException>(
+                () => _service.GetPreferences());
         }
     }
 }
