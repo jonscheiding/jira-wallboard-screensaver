@@ -104,7 +104,7 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _filter.UserIdle += Raise.Event();
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
             _filter.UserActive += Raise.Event();
 
             //
