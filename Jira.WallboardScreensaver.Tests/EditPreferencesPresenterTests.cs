@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Jira.WallboardScreensaver.EditPreferences;
+using Jira.WallboardScreensaver.Services;
 using NSubstitute;
 using NUnit.Framework;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Jira.WallboardScreensaver.Services;
 
 namespace Jira.WallboardScreensaver.Screensaver {
     public class ScreensaverPresenter : IPresenter<IScreensaverView> {

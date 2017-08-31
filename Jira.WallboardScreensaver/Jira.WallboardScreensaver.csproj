@@ -45,7 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrowserService.cs" />
+    <Compile Include="Services\BrowserService.cs" />
     <Compile Include="EditPreferences\EditPreferencesForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -56,11 +56,11 @@
     <Compile Include="EditPreferences\IEditPreferencesView.cs" />
     <Compile Include="IPresenter.cs" />
     <Compile Include="Preferences.cs" />
-    <Compile Include="PreferencesService.cs" />
+    <Compile Include="Services\PreferencesService.cs" />
     <Compile Include="Screensaver\IScreensaverView.cs" />
     <Compile Include="Screensaver\ScreensaverPresenter.cs" />
-    <Compile Include="TaskService.cs" />
-    <Compile Include="UserActivityService.cs" />
+    <Compile Include="Services\TaskService.cs" />
+    <Compile Include="Services\UserActivityService.cs" />
     <Compile Include="Screensaver\ScreensaverForm.cs">
       <SubType>Form</SubType>
     </Compile>

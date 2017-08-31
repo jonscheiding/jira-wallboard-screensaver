@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Jira.WallboardScreensaver.Services;
 using Microsoft.Win32;
 using NUnit.Framework;
 

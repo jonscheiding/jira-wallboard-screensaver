@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Autofac;
 using Jira.WallboardScreensaver.EditPreferences;
 using Jira.WallboardScreensaver.Screensaver;
+using Jira.WallboardScreensaver.Services;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver {

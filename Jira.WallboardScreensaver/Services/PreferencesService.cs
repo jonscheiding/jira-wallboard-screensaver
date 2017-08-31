@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 
-namespace Jira.WallboardScreensaver {
+namespace Jira.WallboardScreensaver.Services {
     public interface IPreferencesService {
         Preferences GetPreferences();
         void SetPreferences(Preferences preferences);

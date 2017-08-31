@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Jira.WallboardScreensaver.Screensaver;
+using Jira.WallboardScreensaver.Services;
 using NSubstitute;
 using NUnit.Framework;
 

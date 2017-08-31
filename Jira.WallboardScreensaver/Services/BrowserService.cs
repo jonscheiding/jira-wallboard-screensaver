@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
-namespace Jira.WallboardScreensaver {
+namespace Jira.WallboardScreensaver.Services {
     public interface IBrowserService {
         void SetCookie(Uri baseUri, string name, string value);
         void ConfigureEmulation();

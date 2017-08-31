@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using Timer = System.Threading.Timer;
 
-namespace Jira.WallboardScreensaver {
+namespace Jira.WallboardScreensaver.Services {
     public interface IUserActivityService {
         event EventHandler<EventArgs> UserActive;
         event EventHandler<EventArgs> UserIdle;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Jira.WallboardScreensaver {
+namespace Jira.WallboardScreensaver.Services {
     public interface ITaskService {
         Task Delay(TimeSpan delay);
     }
