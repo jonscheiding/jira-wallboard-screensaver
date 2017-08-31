@@ -29,6 +29,11 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             set => loginCookiesText.Text = value;
         }
 
+        public void ShowError(string errorMessage)
+        {
+            MessageBox.Show(errorMessage, @"Invalid preferences", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
         private void OnSaveButtonClicked(object sender, EventArgs e)
         {
             SaveButtonClicked?.Invoke(this, e);

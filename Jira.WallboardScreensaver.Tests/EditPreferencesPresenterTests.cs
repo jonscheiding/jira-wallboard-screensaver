@@ -75,7 +75,7 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void CanSavePreferencesWhenCookiesAreEmpty() {
+        public void CanSavePreferencesWhenCookiesAreNotSet() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
             _view.DashboardUrl.Returns("http://www.google.com/");
@@ -109,6 +109,84 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+        }
+
+        [Test]
+        public void ShowsErrorIfDashboardUriIsNotSet()
+        {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("");
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().ShowError(Arg.Any<string>());
+        }
+
+        [Test]
+        public void ShowsErrorIfDashboardUriIsNotValid() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("bad");
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().ShowError(Arg.Any<string>());
+        }
+
+        [Test]
+        public void ShowsErrorIfCookiesAreNotValid() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("http://www.google.com");
+            _view.LoginCookies.Returns("a=b;c");
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().ShowError(Arg.Any<string>());
+        }
+
+        [Test]
+        public void SaveDoesNotCloseViewIfPreferencesAreNotValid()
+        {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("bad");
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.DidNotReceive().Close();
+        }
+
+        [Test]
+        public void CancelClosesViewIfPreferencesAreNotValid() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("bad");
+
+            //
+
+            _view.CancelButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().Close();
         }
     }
 }

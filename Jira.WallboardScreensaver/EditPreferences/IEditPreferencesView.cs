@@ -9,5 +9,7 @@ namespace Jira.WallboardScreensaver.EditPreferences
         string DashboardUrl { get; set; }
         string LoginCookies { get; set; }
         void Close();
+
+        void ShowError(string errorMessage);
     }
 }

@@ -27,15 +27,57 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             view.CancelButtonClicked += (o, args) => view.Close();
             view.SaveButtonClicked += (o, args) =>
             {
-                SavePreferences(view);
-                view.Close();
+                if (SavePreferences(view))
+                {
+                    view.Close();
+                }
             };
         }
 
-        private void SavePreferences(IEditPreferencesView view)
+        private bool SavePreferences(IEditPreferencesView view)
         {
-            var loginCookies = new Dictionary<string, string>();
-            if (!string.IsNullOrEmpty(view.LoginCookies))
+            Uri dashboardUri;
+            Dictionary<string, string> loginCookies;
+
+            if (!ValidateDashboardUri(view, out dashboardUri) ||
+                !ValidateLoginCookies(view, out loginCookies))
+            {
+                return false;
+            }
+
+            _preferences.SetPreferences(new Preferences
+            {
+                DashboardUri = dashboardUri,
+                LoginCookies = loginCookies
+            });
+
+            return true;
+        }
+
+        private bool ValidateDashboardUri(IEditPreferencesView view, out Uri dashboardUri)
+        {
+            try
+            {
+                dashboardUri = new Uri(view.DashboardUrl);
+                return true;
+            }
+            catch (UriFormatException x)
+            {
+                view.ShowError(x.Message);
+                dashboardUri = null;
+                return false;
+            }
+        }
+
+        private bool ValidateLoginCookies(IEditPreferencesView view, out Dictionary<string, string> loginCookies)
+        {
+            if (string.IsNullOrEmpty(view.LoginCookies))
+            {
+                loginCookies = new Dictionary<string, string>();
+                return true;
+            }
+
+            try
             {
                 loginCookies = view.LoginCookies.Split(';')
                     .Select(c =>
@@ -48,15 +90,15 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                         return parts;
                     })
                     .ToDictionary(kv => kv[0], kv => kv[1]);
+
+                return true;
             }
-
-            var preferences = new Preferences
+            catch (ArgumentException)
             {
-                DashboardUri = new Uri(view.DashboardUrl),
-                LoginCookies = loginCookies
-            };
-
-            _preferences.SetPreferences(preferences);
+                view.ShowError("Invalid cookies.  Cookies must be in the form 'cookie1=value1;cookie2=value2'.");
+                loginCookies = null;
+                return false;
+            }
         }
     }
 }
