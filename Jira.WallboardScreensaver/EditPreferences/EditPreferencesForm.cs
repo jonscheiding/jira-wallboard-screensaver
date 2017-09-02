@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Jira.WallboardScreensaver.EditPreferences {
+namespace Jira.WallboardScreensaver.EditPreferences { 
     public partial class EditPreferencesForm : Form, IEditPreferencesView {
         public EditPreferencesForm() {
             InitializeComponent();
@@ -9,6 +9,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
         public event EventHandler SaveButtonClicked;
         public event EventHandler CancelButtonClicked;
+        public event EventHandler<LoginEventArgs> LoginButtonClicked;
 
         public string DashboardUrl {
             get => dashboardUrlText.Text;
@@ -30,6 +31,13 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
         private void OnCancelButtonClicked(object sender, EventArgs e) {
             CancelButtonClicked?.Invoke(this, e);
+        }
+
+        private void OnLoginButtonClick(object sender, EventArgs e) {
+            LoginButtonClicked?.Invoke(this, new LoginEventArgs {
+                Username = loginUsernameText.Text,
+                Password = loginPasswordText.Text
+            });
         }
     }
 }

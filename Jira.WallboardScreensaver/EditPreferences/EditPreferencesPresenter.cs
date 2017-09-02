@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Web.Script.Serialization;
 using Jira.WallboardScreensaver.Services;
 
@@ -9,9 +10,11 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
 
         private readonly IPreferencesService _preferences;
+        private readonly IJiraService _jira;
 
-        public EditPreferencesPresenter(IPreferencesService preferences) {
+        public EditPreferencesPresenter(IPreferencesService preferences, IJiraService jira) {
             _preferences = preferences;
+            _jira = jira;
         }
 
         public void Initialize(IEditPreferencesView view) {
@@ -27,6 +30,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                 if (SavePreferences(view))
                     view.Close();
             };
+            view.LoginButtonClicked += (o, args) => LoginToJira(view, args);
         }
 
         private bool SavePreferences(IEditPreferencesView view) {
@@ -41,6 +45,22 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
             return true;
         }
+
+        private async void LoginToJira(IEditPreferencesView view, LoginEventArgs args) {
+            if (!ValidateDashboardUri(view, out Uri dashboardUri)) {
+                return;
+            }
+
+            var baseUri = new Uri(dashboardUri, "/");
+
+            try {
+                var result = await _jira.Login(baseUri, args.Username, args.Password);
+                view.LoginCookies = Serializer.Serialize(result);
+            } catch (HttpRequestException) {
+                view.ShowError("The login failed.");
+            }
+        }
+
 
         private static bool ValidateDashboardUri(IEditPreferencesView view, out Uri dashboardUri) {
             try {

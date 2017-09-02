@@ -1,23 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Net.Http;
+using System.Security.Policy;
+using System.Threading.Tasks;
 using Jira.WallboardScreensaver.EditPreferences;
 using Jira.WallboardScreensaver.Services;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 
 namespace Jira.WallboardScreensaver.Tests {
     [TestFixture]
     public class EditPreferencesPresenterTests {
+        private EditPreferencesPresenter _presenter;
+        private IEditPreferencesView _view;
+        private IPreferencesService _preferences;
+        private IJiraService _jira;
+
         [SetUp]
         public void SetUp() {
             _preferences = Substitute.For<IPreferencesService>();
             _view = Substitute.For<IEditPreferencesView>();
-            _presenter = new EditPreferencesPresenter(_preferences);
-        }
+            _jira = Substitute.For<IJiraService>();
 
-        private EditPreferencesPresenter _presenter;
-        private IEditPreferencesView _view;
-        private IPreferencesService _preferences;
+            _presenter = new EditPreferencesPresenter(_preferences, _jira);
+        }
 
         [Test]
         public void CancelClosesViewIfPreferencesAreNotValid() {
@@ -174,6 +182,81 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _view.Received().ShowError(Arg.Any<string>());
+        }
+
+        [Test]
+        public void CallsJiraServiceToLoginWhenButtonClicked() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            
+            //
+
+            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
+                _view, new LoginEventArgs {Username = "user", Password = "pass"});
+
+            //
+
+            _jira.Received().Login(new Uri("http://www.google.com/"), "user", "pass");
+        }
+
+        [Test]
+        public void ShowsErrorMessageIfJiraLoginAttemptedWithInvalidUrl() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("aaa");
+
+            //
+
+            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
+                _view, new LoginEventArgs { Username = "user", Password = "pass" });
+
+            //
+
+            _view.Received().ShowError(Arg.Any<string>());
+        }
+
+        [Test]
+        public void ShowsErrorMessageIfJiraLoginFails() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Throws<HttpRequestException>();
+
+            //
+
+            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
+                _view, new LoginEventArgs { Username = "user", Password = "pass" });
+
+            //
+
+            _view.Received().ShowError(Arg.Any<string>());
+        }
+
+        [Test]
+        public void SetsCookiesIntoFormIfJiraLoginSucceeds() {
+            IReadOnlyDictionary<string, string> cookies = new ReadOnlyDictionary<string, string>(
+                new Dictionary<string, string> {
+                    {"cookie1", "value1"},
+                    {"cookie2", "value2"}
+                });
+
+            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Returns(Task.FromResult(cookies));
+
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+
+            //
+
+            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
+                _view, new LoginEventArgs { Username = "user", Password = "pass" });
+
+            //
+
+            _view.Received().LoginCookies = @"{""cookie1"":""value1"",""cookie2"":""value2""}";
         }
     }
 }
