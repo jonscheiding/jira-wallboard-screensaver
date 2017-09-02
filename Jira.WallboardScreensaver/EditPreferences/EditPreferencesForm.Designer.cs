@@ -156,8 +156,10 @@
             // 
             // EditPreferencesForm
             // 
+            this.AcceptButton = saveButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = cancelButton;
             this.ClientSize = new System.Drawing.Size(551, 280);
             this.Controls.Add(this.anonymousCheckbox);
             this.Controls.Add(label2);
