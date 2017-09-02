@@ -199,7 +199,7 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void SavesCookiesFromJiraLoginWhenSaveButtonClicked() {
+        public void SavesCookiesAndUsernameFromJiraLoginWhenSaveButtonClicked() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
 
@@ -218,7 +218,10 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _preferences.Received().SetPreferences(Arg.Is<Preferences>(p => p.LoginCookies == cookies));
+            _preferences.Received()
+                .SetPreferences(Arg.Is<Preferences>(p =>
+                    p.LoginCookies == cookies &&
+                    p.LoginUsername == "user"));
         }
 
         [Test]
@@ -337,6 +340,19 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _view.Received().Anonymous = true;
+        }
+
+        [Test]
+        public void SetsLoginUsernameIfThereIsOne() {
+            _preferences.GetPreferences().Returns(new Preferences{ LoginUsername = "user" });
+
+            //
+
+            _presenter.Initialize(_view);
+
+            //
+
+            _view.Received().LoginUsername = "user";
         }
 
         [Test]

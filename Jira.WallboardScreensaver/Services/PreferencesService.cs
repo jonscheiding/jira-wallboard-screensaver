@@ -13,7 +13,7 @@ namespace Jira.WallboardScreensaver.Services {
     public class PreferencesService : IPreferencesService {
         public const string DashboardUriKey = "DashboardUri";
         public const string LoginCookiesKey = "LoginCookies";
-        public const string CookieSeparator = @"=";
+        public const string LoginUsernameKey = "LoginUsername";
 
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
 
@@ -26,7 +26,8 @@ namespace Jira.WallboardScreensaver.Services {
         public virtual Preferences GetPreferences() {
             return new Preferences {
                 DashboardUri = ReadDashboardUri(_key),
-                LoginCookies = ReadLoginCookies(_key)
+                LoginCookies = ReadLoginCookies(_key),
+                LoginUsername = (string)_key.GetValue(LoginUsernameKey)
             };
         }
 
@@ -36,9 +37,12 @@ namespace Jira.WallboardScreensaver.Services {
             else
                 _key.SetValue(DashboardUriKey, preferences.DashboardUri.ToString());
 
-            //_key.SetValue(LoginCookiesKey,
-            //    preferences.LoginCookies.Select(kv => $@"{kv.Key}{CookieSeparator}{kv.Value}").ToArray());
             _key.SetValue(LoginCookiesKey, Serializer.Serialize(preferences.LoginCookies));
+            if (preferences.LoginUsername == null) {
+                _key.DeleteValue(LoginUsernameKey, false);
+            } else {
+                _key.SetValue(LoginUsernameKey, preferences.LoginUsername);
+            }
         }
 
         private static Uri ReadDashboardUri(RegistryKey key) {

@@ -26,6 +26,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                 view.DashboardUrl = preferences.DashboardUri.ToString();
 
             view.Anonymous = preferences.LoginCookies.Count == 0;
+            view.LoginUsername = preferences.LoginUsername ?? string.Empty;
 
             view.CancelButtonClicked += (o, args) => view.Close();
             view.SaveButtonClicked += async (o, args) => {
@@ -47,6 +48,8 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                     view.ShowError("Please enter your username and password.");
                     return false;
                 }
+
+                preferences.LoginUsername = view.LoginUsername;
 
                 view.Disabled = true;
 
