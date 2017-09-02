@@ -9,16 +9,20 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
         public event EventHandler SaveButtonClicked;
         public event EventHandler CancelButtonClicked;
-        public event EventHandler<LoginEventArgs> LoginButtonClicked;
 
         public string DashboardUrl {
             get => dashboardUrlText.Text;
             set => dashboardUrlText.Text = value;
         }
 
-        public string LoginCookies {
-            get => loginCookiesText.Text;
-            set => loginCookiesText.Text = value;
+        public string LoginUsername {
+            get => loginUsernameText.Text;
+            set => loginUsernameText.Text = value;
+        }
+
+        public string LoginPassword {
+            get => loginPasswordText.Text;
+            set => loginPasswordText.Text = value;
         }
 
         public bool Disabled {
@@ -36,13 +40,6 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
         private void OnCancelButtonClicked(object sender, EventArgs e) {
             CancelButtonClicked?.Invoke(this, e);
-        }
-
-        private void OnLoginButtonClick(object sender, EventArgs e) {
-            LoginButtonClicked?.Invoke(this, new LoginEventArgs {
-                Username = loginUsernameText.Text,
-                Password = loginPasswordText.Text
-            });
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Jira.WallboardScreensaver.Services;
 
@@ -23,20 +24,29 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             if (preferences.DashboardUri != null)
                 view.DashboardUrl = preferences.DashboardUri.ToString();
 
-            view.LoginCookies = Serializer.Serialize(preferences.LoginCookies);
-
             view.CancelButtonClicked += (o, args) => view.Close();
-            view.SaveButtonClicked += (o, args) => {
-                if (SavePreferences(view))
+            view.SaveButtonClicked += async (o, args) => {
+                if (await SavePreferences(view))
                     view.Close();
             };
-            view.LoginButtonClicked += (o, args) => LoginToJira(view, args);
         }
 
-        private bool SavePreferences(IEditPreferencesView view) {
-            if (!ValidateDashboardUri(view, out Uri dashboardUri) ||
-                !ValidateLoginCookies(view, out Dictionary<string, string> loginCookies))
+        private async Task<bool> SavePreferences(IEditPreferencesView view) {
+            if (!ValidateDashboardUri(view, out Uri dashboardUri))
                 return false;
+
+            view.Disabled = true;
+
+            IReadOnlyDictionary<string, string> loginCookies;
+            try {
+                loginCookies = await _jira.Login(new Uri(dashboardUri, "/"), view.LoginUsername,
+                    view.LoginPassword);
+            } catch (HttpRequestException x) {
+                view.ShowError(x.Message);
+                return false;
+            } finally {
+                view.Disabled = false;
+            }
 
             _preferences.SetPreferences(new Preferences {
                 DashboardUri = dashboardUri,
@@ -46,26 +56,6 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             return true;
         }
 
-        private async void LoginToJira(IEditPreferencesView view, LoginEventArgs args) {
-            if (!ValidateDashboardUri(view, out Uri dashboardUri)) {
-                return;
-            }
-
-            var baseUri = new Uri(dashboardUri, "/");
-
-            view.Disabled = true;
-
-            try {
-                var result = await _jira.Login(baseUri, args.Username, args.Password);
-                view.LoginCookies = Serializer.Serialize(result);
-            } catch (HttpRequestException) {
-                view.ShowError("The login failed.");
-            }
-
-            view.Disabled = false;
-        }
-
-
         private static bool ValidateDashboardUri(IEditPreferencesView view, out Uri dashboardUri) {
             try {
                 dashboardUri = new Uri(view.DashboardUrl);
@@ -74,24 +64,6 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             catch (UriFormatException x) {
                 view.ShowError(x.Message);
                 dashboardUri = null;
-                return false;
-            }
-        }
-
-        private static bool ValidateLoginCookies(IEditPreferencesView view, out Dictionary<string, string> loginCookies) {
-            if (string.IsNullOrEmpty(view.LoginCookies)) {
-                loginCookies = new Dictionary<string, string>();
-                return true;
-            }
-
-            try {
-                loginCookies = Serializer.Deserialize<Dictionary<string, string>>(view.LoginCookies);
-
-                return true;
-            }
-            catch (ArgumentException) {
-                view.ShowError("Invalid cookies.  Cookies must be in JSON format.");
-                loginCookies = null;
                 return false;
             }
         }

@@ -32,6 +32,20 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void CancelClosesView() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            //
+
+            _view.CancelButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().Close();
+        }
+
+        [Test]
         public void CancelClosesViewIfPreferencesAreNotValid() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
@@ -44,28 +58,6 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _view.Received().Close();
-        }
-
-        [Test]
-        public void CanSavePreferencesWhenCookiesAreNotSet() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("http://www.google.com/");
-            _view.LoginCookies.Returns("");
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _preferences.Received()
-                .SetPreferences(Arg.Do<Preferences>(p => {
-                    Assert.That(p.DashboardUri, Is.EqualTo(new Uri("http://www.google.com/")));
-                    Assert.That(p.LoginCookies, Is.EquivalentTo(new[] {
-                        new KeyValuePair<string, string>("cookie1", "value1")
-                    }));
-                }));
         }
 
         [Test]
@@ -85,11 +77,7 @@ namespace Jira.WallboardScreensaver.Tests {
         [Test]
         public void LoadsPreferencesIntoView() {
             var p = new Preferences {
-                DashboardUri = new Uri("http://www.google.com/"),
-                LoginCookies = new Dictionary<string, string> {
-                    {"cookie1", "value1"},
-                    {"cookie2", "value2"}
-                }
+                DashboardUri = new Uri("http://www.google.com/")
             };
 
             _preferences.GetPreferences().Returns(p);
@@ -102,11 +90,10 @@ namespace Jira.WallboardScreensaver.Tests {
 
             _preferences.Received().GetPreferences();
             _view.Received().DashboardUrl = "http://www.google.com/";
-            _view.Received().LoginCookies = @"{""cookie1"":""value1"",""cookie2"":""value2""}";
         }
 
         [Test]
-        public void SaveDoesNotCloseViewIfPreferencesAreNotValid() {
+        public void SaveDoesNotCloseViewIfUrlIsNotValid() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
             _view.DashboardUrl.Returns("bad");
@@ -121,11 +108,10 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void SavesPreferencesFromViewWhenSaveButtonClicked() {
+        public void SavesUrlFromViewWhenSaveButtonClicked() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
             _view.DashboardUrl.Returns("http://www.google.com/");
-            _view.LoginCookies.Returns(@"{""cookie1"": ""value1"", ""cookie2"": ""value2""}");
 
             //
 
@@ -140,22 +126,6 @@ namespace Jira.WallboardScreensaver.Tests {
                         new KeyValuePair<string, string>("cookie1", "value1")
                     }));
                 }));
-        }
-
-        [Test]
-        public void ShowsErrorIfCookiesAreNotValid() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("http://www.google.com");
-            _view.LoginCookies.Returns("abc");
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _view.Received().ShowError(Arg.Any<string>());
         }
 
         [Test]
@@ -189,78 +159,21 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void CallsJiraServiceToLoginWhenButtonClicked() {
+        public void LogsInToJiraWhenSaveButtonIsClicked() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
+
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+
             //
 
-            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
-                _view, new LoginEventArgs {Username = "user", Password = "pass"});
+            _view.SaveButtonClicked += Raise.Event();
 
             //
 
             _jira.Received().Login(new Uri("http://www.google.com/"), "user", "pass");
-        }
-
-        [Test]
-        public void ShowsErrorMessageIfJiraLoginAttemptedWithInvalidUrl() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("aaa");
-
-            //
-
-            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
-                _view, new LoginEventArgs { Username = "user", Password = "pass" });
-
-            //
-
-            _view.Received().ShowError(Arg.Any<string>());
-        }
-
-        [Test]
-        public void ShowsErrorMessageIfJiraLoginFails() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Throws<HttpRequestException>();
-
-            //
-
-            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
-                _view, new LoginEventArgs { Username = "user", Password = "pass" });
-
-            //
-
-            _view.Received().ShowError(Arg.Any<string>());
-        }
-
-        [Test]
-        public void SetsCookiesIntoFormIfJiraLoginSucceeds() {
-            IReadOnlyDictionary<string, string> cookies = new ReadOnlyDictionary<string, string>(
-                new Dictionary<string, string> {
-                    {"cookie1", "value1"},
-                    {"cookie2", "value2"}
-                });
-
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Returns(Task.FromResult(cookies));
-
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-
-            //
-
-            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
-                _view, new LoginEventArgs { Username = "user", Password = "pass" });
-
-            //
-
-            _view.Received().LoginCookies = @"{""cookie1"":""value1"",""cookie2"":""value2""}";
         }
 
         [Test]
@@ -273,8 +186,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
-                _view, new LoginEventArgs { Username = "", Password = "" });
+            _view.SaveButtonClicked += Raise.Event();
 
             //
 
@@ -282,21 +194,88 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void EnablesViewAfterLoginCompletes() {
+        public void SavesCookiesFromJiraLoginWhenSaveButtonClicked() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
+
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+
+            var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
             _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Returns(Task.FromResult<IReadOnlyDictionary<string, string>>(null));
+                .Returns(Task.FromResult(cookies));
 
             //
 
-            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
-                _view, new LoginEventArgs { Username = "", Password = "" });
+            _view.SaveButtonClicked += Raise.Event();
 
             //
 
-            _view.Received().Disabled = false;
+            _preferences.Received().SetPreferences(Arg.Is<Preferences>(p => p.LoginCookies == cookies));
+        }
+
+        [Test]
+        public void DoesNotSavePreferencesIfLoginFails() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+
+            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Throws(new HttpRequestException());
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+        }
+
+        [Test]
+        public void ShowsErrorMessageIfLoginFails() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+
+            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Throws(new HttpRequestException());
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().ShowError(Arg.Any<string>());
+        }
+
+        [Test]
+        public void DoesNotCloseFormIfLoginFails() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+
+            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Throws(new HttpRequestException());
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.DidNotReceive().Close();
         }
     }
 }
