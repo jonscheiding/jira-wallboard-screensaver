@@ -90,7 +90,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             _preferences.Received().GetPreferences();
             _view.Received().DashboardUrl = "http://www.google.com/";
-            _view.Received().LoginCookies = "cookie1=value1;cookie2=value2";
+            _view.Received().LoginCookies = @"{""cookie1"":""value1"",""cookie2"":""value2""}";
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
             _view.DashboardUrl.Returns("http://www.google.com/");
-            _view.LoginCookies.Returns("cookie1=value1;cookie2=value2");
+            _view.LoginCookies.Returns(@"{""cookie1"": ""value1"", ""cookie2"": ""value2""}");
 
             //
 
@@ -135,7 +135,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
             _view.DashboardUrl.Returns("http://www.google.com");
-            _view.LoginCookies.Returns("a=b;c");
+            _view.LoginCookies.Returns("abc");
 
             //
 

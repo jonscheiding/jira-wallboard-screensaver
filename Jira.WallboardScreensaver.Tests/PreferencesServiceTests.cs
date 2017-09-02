@@ -30,8 +30,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void ReturnsCorrectCookieIfOneIsConfigured() {
-            var cookie = $"cookie{PreferencesService.CookieSeparator}value";
-            _key.SetValue(PreferencesService.LoginCookiesKey, new[] {cookie});
+            _key.SetValue(PreferencesService.LoginCookiesKey, @"{""cookie"": ""value""}");
 
             //
 
@@ -45,10 +44,11 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void ReturnsCorrectCookiesIfManyAreConfigured() {
-            var cookie1 = $"cookie1{PreferencesService.CookieSeparator}value3";
-            var cookie2 = $"cookie2{PreferencesService.CookieSeparator}value2";
-            var cookie3 = $"cookie3{PreferencesService.CookieSeparator}value1";
-            _key.SetValue(PreferencesService.LoginCookiesKey, new[] {cookie1, cookie2, cookie3});
+            _key.SetValue(PreferencesService.LoginCookiesKey, @"{
+                ""cookie1"": ""value3"",
+                ""cookie2"": ""value2"",
+                ""cookie3"": ""value1""
+            }");
 
             //
 
@@ -99,7 +99,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void ThrowsIfCookiesAreNotValid() {
-            _key.SetValue(PreferencesService.LoginCookiesKey, new[] {"notacookie"});
+            _key.SetValue(PreferencesService.LoginCookiesKey, "notacookie");
 
             // //
 

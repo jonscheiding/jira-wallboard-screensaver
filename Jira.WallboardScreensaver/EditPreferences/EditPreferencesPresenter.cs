@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Script.Serialization;
 using Jira.WallboardScreensaver.Services;
 
 namespace Jira.WallboardScreensaver.EditPreferences {
     public class EditPreferencesPresenter : IPresenter<IEditPreferencesView> {
+        private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
+
         private readonly IPreferencesService _preferences;
 
         public EditPreferencesPresenter(IPreferencesService preferences) {
@@ -17,7 +20,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             if (preferences.DashboardUri != null)
                 view.DashboardUrl = preferences.DashboardUri.ToString();
 
-            view.LoginCookies = string.Join(";", preferences.LoginCookies.Select(kv => $@"{kv.Key}={kv.Value}"));
+            view.LoginCookies = Serializer.Serialize(preferences.LoginCookies);
 
             view.CancelButtonClicked += (o, args) => view.Close();
             view.SaveButtonClicked += (o, args) => {
@@ -58,19 +61,12 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             }
 
             try {
-                loginCookies = view.LoginCookies.Split(';')
-                    .Select(c => {
-                        var parts = c.Split(new[] {'='}, 2);
-                        if (parts.Length != 2)
-                            throw new ArgumentException($@"Invalid dictionary argument '{c}'.");
-                        return parts;
-                    })
-                    .ToDictionary(kv => kv[0], kv => kv[1]);
+                loginCookies = Serializer.Deserialize<Dictionary<string, string>>(view.LoginCookies);
 
                 return true;
             }
             catch (ArgumentException) {
-                view.ShowError("Invalid cookies.  Cookies must be in the form 'cookie1=value1;cookie2=value2'.");
+                view.ShowError("Invalid cookies.  Cookies must be in JSON format.");
                 loginCookies = null;
                 return false;
             }
