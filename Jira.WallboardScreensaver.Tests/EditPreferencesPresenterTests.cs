@@ -166,6 +166,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
             _view.LoginUsername.Returns("user");
             _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
 
             //
 
@@ -186,6 +187,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
             _view.LoginUsername.Returns("user");
             _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
 
             //
 
@@ -204,6 +206,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
             _view.LoginUsername.Returns("user");
             _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
 
             var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
             _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
@@ -248,6 +251,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
             _view.LoginUsername.Returns(string.Empty);
             _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
 
             //
 
@@ -268,6 +272,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
             _view.LoginUsername.Returns("user");
             _view.LoginPassword.Returns(string.Empty);
+            _view.Anonymous.Returns(false);
 
             //
 
@@ -288,6 +293,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
             _view.LoginUsername.Returns("user");
             _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
 
             _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
                 .Throws(new HttpRequestException());
@@ -301,6 +307,57 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.Received().ShowError(Arg.Any<string>());
             _view.DidNotReceive().Close();
             _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+        }
+
+        [Test]
+        public void DoesNotLoginToJiraIfAnonymousSet() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _view.Anonymous.Returns(true);
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _jira.DidNotReceive().Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>());
+        }
+
+        [Test]
+        public void SetsAnonymousIfThereAreNoCookiesInPreferences() {
+            _preferences.GetPreferences().Returns(new Preferences());
+
+            //
+
+            _presenter.Initialize(_view);
+
+            //
+
+            _view.Received().Anonymous = true;
+        }
+
+        [Test]
+        public void DoesNotShowErrorsForMissingUsernamePasswordIfAnonymousIsSet() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _view.LoginUsername.Returns(string.Empty);
+            _view.LoginPassword.Returns(string.Empty);
+            _view.Anonymous.Returns(true);
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.DidNotReceive().ShowError(Arg.Any<string>());
+            _view.Received().Close();
+            _preferences.Received().SetPreferences(Arg.Any<Preferences>());
         }
     }
 }

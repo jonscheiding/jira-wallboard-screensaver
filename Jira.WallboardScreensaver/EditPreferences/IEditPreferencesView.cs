@@ -5,6 +5,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         string DashboardUrl { get; set; }
         string LoginUsername { get; set; }
         string LoginPassword { get; set; }
+        bool Anonymous { get; set; }
         bool Disabled { get; set; }
 
         event EventHandler SaveButtonClicked;

@@ -25,6 +25,11 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             set => loginPasswordText.Text = value;
         }
 
+        public bool Anonymous {
+            get => anonymousCheckbox.Checked;
+            set => anonymousCheckbox.Checked = value;
+        }
+
         public bool Disabled {
             get => !Enabled;
             set => Enabled = !value;
@@ -40,6 +45,10 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
         private void OnCancelButtonClicked(object sender, EventArgs e) {
             CancelButtonClicked?.Invoke(this, e);
+        }
+
+        private void OnAnonymousCheckboxChanged(object sender, EventArgs e) {
+            loginPasswordText.Enabled = loginUsernameText.Enabled = !((CheckBox) sender).Checked;
         }
     }
 }
