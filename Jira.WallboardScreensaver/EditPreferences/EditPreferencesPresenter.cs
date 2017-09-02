@@ -35,11 +35,18 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             if (!ValidateDashboardUri(view, out Uri dashboardUri))
                 return false;
 
+            if (string.IsNullOrEmpty(view.LoginUsername) 
+                || string.IsNullOrEmpty(view.LoginPassword)) {
+                view.ShowError("Please enter your username and password.");
+                return false;
+            }
+
             view.Disabled = true;
 
             IReadOnlyDictionary<string, string> loginCookies;
             try {
-                loginCookies = await _jira.Login(new Uri(dashboardUri, "/"), view.LoginUsername,
+                loginCookies = await _jira.Login(new Uri(dashboardUri, "/"), 
+                    view.LoginUsername,
                     view.LoginPassword);
             } catch (HttpRequestException x) {
                 view.ShowError(x.Message);
