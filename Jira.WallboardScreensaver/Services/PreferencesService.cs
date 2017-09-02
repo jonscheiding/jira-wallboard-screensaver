@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Script.Serialization;
 using Microsoft.Win32;
 
 namespace Jira.WallboardScreensaver.Services {
@@ -12,7 +13,10 @@ namespace Jira.WallboardScreensaver.Services {
     public class PreferencesService : IPreferencesService {
         public const string DashboardUriKey = "DashboardUri";
         public const string LoginCookiesKey = "LoginCookies";
-        public const string CookieSeparator = @"=";
+        public const string LoginUsernameKey = "LoginUsername";
+
+        private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
+
         private readonly RegistryKey _key;
 
         public PreferencesService(RegistryKey key) {
@@ -22,7 +26,8 @@ namespace Jira.WallboardScreensaver.Services {
         public virtual Preferences GetPreferences() {
             return new Preferences {
                 DashboardUri = ReadDashboardUri(_key),
-                LoginCookies = ReadLoginCookies(_key)
+                LoginCookies = ReadLoginCookies(_key),
+                LoginUsername = (string)_key.GetValue(LoginUsernameKey)
             };
         }
 
@@ -32,8 +37,12 @@ namespace Jira.WallboardScreensaver.Services {
             else
                 _key.SetValue(DashboardUriKey, preferences.DashboardUri.ToString());
 
-            _key.SetValue(LoginCookiesKey,
-                preferences.LoginCookies.Select(kv => $@"{kv.Key}{CookieSeparator}{kv.Value}").ToArray());
+            _key.SetValue(LoginCookiesKey, Serializer.Serialize(preferences.LoginCookies));
+            if (preferences.LoginUsername == null) {
+                _key.DeleteValue(LoginUsernameKey, false);
+            } else {
+                _key.SetValue(LoginUsernameKey, preferences.LoginUsername);
+            }
         }
 
         private static Uri ReadDashboardUri(RegistryKey key) {
@@ -50,20 +59,11 @@ namespace Jira.WallboardScreensaver.Services {
         }
 
         private static Dictionary<string, string> ReadLoginCookies(RegistryKey key) {
-            var loginCookies = (string[]) key.GetValue(LoginCookiesKey, new string[0]);
+            var loginCookies = (string) key.GetValue(LoginCookiesKey, null);
             if (loginCookies == null)
                 return new Dictionary<string, string>();
 
-            return loginCookies
-                .Select(cookie => {
-                    var parts = cookie.Split(new[] {CookieSeparator}, 2, StringSplitOptions.None);
-                    if (parts.Length != 2)
-                        throw new ArgumentException(
-                            $@"Invalid cookie setting; expected a string of the form 'key{CookieSeparator}value'.",
-                            LoginCookiesKey);
-                    return parts;
-                })
-                .ToDictionary(kv => kv[0], kv => kv[1]);
+            return Serializer.Deserialize<Dictionary<string, string>>(loginCookies);
         }
     }
 }

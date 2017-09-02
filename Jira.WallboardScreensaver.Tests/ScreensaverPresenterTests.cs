@@ -30,7 +30,7 @@ namespace Jira.WallboardScreensaver.Tests {
         private Preferences _preferences;
         private ScreensaverPresenter _presenter;
 
-        private Task TaskThatNeverCompletes() {
+        private static Task TaskThatNeverCompletes() {
             return new TaskCompletionSource<object>().Task;
         }
 

@@ -31,6 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HttpMock, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HttpMock.2.1.0\lib\net45\HttpMock.dll</HintPath>
+    </Reference>
+    <Reference Include="Kayak, Version=0.7.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Kayak.0.7.2\lib\Kayak.dll</HintPath>
+    </Reference>
     <Reference Include="NSubstitute, Version=2.0.3.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
       <HintPath>..\packages\NSubstitute.2.0.3\lib\net45\NSubstitute.dll</HintPath>
     </Reference>
@@ -49,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EditPreferencesPresenterTests.cs" />
+    <Compile Include="JiraServiceTests.cs" />
     <Compile Include="PreferencesServiceTests.cs" />
     <Compile Include="ScreensaverPresenterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

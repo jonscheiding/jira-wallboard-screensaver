@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 using Jira.WallboardScreensaver.Services;
 
 namespace Jira.WallboardScreensaver.EditPreferences {
     public class EditPreferencesPresenter : IPresenter<IEditPreferencesView> {
-        private readonly IPreferencesService _preferences;
+        private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
 
-        public EditPreferencesPresenter(IPreferencesService preferences) {
+        private readonly IPreferencesService _preferences;
+        private readonly IJiraService _jira;
+
+        public EditPreferencesPresenter(IPreferencesService preferences, IJiraService jira) {
             _preferences = preferences;
+            _jira = jira;
         }
 
         public void Initialize(IEditPreferencesView view) {
@@ -17,24 +25,47 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             if (preferences.DashboardUri != null)
                 view.DashboardUrl = preferences.DashboardUri.ToString();
 
-            view.LoginCookies = string.Join(";", preferences.LoginCookies.Select(kv => $@"{kv.Key}={kv.Value}"));
+            view.Anonymous = preferences.LoginCookies.Count == 0;
+            view.LoginUsername = preferences.LoginUsername ?? string.Empty;
 
             view.CancelButtonClicked += (o, args) => view.Close();
-            view.SaveButtonClicked += (o, args) => {
-                if (SavePreferences(view))
+            view.SaveButtonClicked += async (o, args) => {
+                if (await SavePreferences(view))
                     view.Close();
             };
         }
 
-        private bool SavePreferences(IEditPreferencesView view) {
-            if (!ValidateDashboardUri(view, out Uri dashboardUri) ||
-                !ValidateLoginCookies(view, out Dictionary<string, string> loginCookies))
+        private async Task<bool> SavePreferences(IEditPreferencesView view) {
+            if (!ValidateDashboardUri(view, out Uri dashboardUri))
                 return false;
 
-            _preferences.SetPreferences(new Preferences {
-                DashboardUri = dashboardUri,
-                LoginCookies = loginCookies
-            });
+            var preferences = new Preferences {
+                DashboardUri = dashboardUri
+            };
+
+            if (!view.Anonymous) {
+                if (string.IsNullOrEmpty(view.LoginUsername) || string.IsNullOrEmpty(view.LoginPassword)) {
+                    view.ShowError("Please enter your username and password.");
+                    return false;
+                }
+
+                preferences.LoginUsername = view.LoginUsername;
+
+                view.Disabled = true;
+
+                try {
+                    preferences.LoginCookies = await _jira.Login(new Uri(dashboardUri, "/"),
+                        view.LoginUsername,
+                        view.LoginPassword);
+                } catch (HttpRequestException x) {
+                    view.ShowError(x.Message);
+                    return false;
+                } finally {
+                    view.Disabled = false;
+                }
+            }
+
+            _preferences.SetPreferences(preferences);
 
             return true;
         }
@@ -47,31 +78,6 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             catch (UriFormatException x) {
                 view.ShowError(x.Message);
                 dashboardUri = null;
-                return false;
-            }
-        }
-
-        private static bool ValidateLoginCookies(IEditPreferencesView view, out Dictionary<string, string> loginCookies) {
-            if (string.IsNullOrEmpty(view.LoginCookies)) {
-                loginCookies = new Dictionary<string, string>();
-                return true;
-            }
-
-            try {
-                loginCookies = view.LoginCookies.Split(';')
-                    .Select(c => {
-                        var parts = c.Split(new[] {'='}, 2);
-                        if (parts.Length != 2)
-                            throw new ArgumentException($@"Invalid dictionary argument '{c}'.");
-                        return parts;
-                    })
-                    .ToDictionary(kv => kv[0], kv => kv[1]);
-
-                return true;
-            }
-            catch (ArgumentException) {
-                view.ShowError("Invalid cookies.  Cookies must be in the form 'cookie1=value1;cookie2=value2'.");
-                loginCookies = null;
                 return false;
             }
         }

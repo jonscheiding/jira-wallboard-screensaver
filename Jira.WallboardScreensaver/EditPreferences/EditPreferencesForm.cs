@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Jira.WallboardScreensaver.EditPreferences {
+namespace Jira.WallboardScreensaver.EditPreferences { 
     public partial class EditPreferencesForm : Form, IEditPreferencesView {
         public EditPreferencesForm() {
             InitializeComponent();
@@ -15,9 +15,24 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             set => dashboardUrlText.Text = value;
         }
 
-        public string LoginCookies {
-            get => loginCookiesText.Text;
-            set => loginCookiesText.Text = value;
+        public string LoginUsername {
+            get => loginUsernameText.Text;
+            set => loginUsernameText.Text = value;
+        }
+
+        public string LoginPassword {
+            get => loginPasswordText.Text;
+            set => loginPasswordText.Text = value;
+        }
+
+        public bool Anonymous {
+            get => anonymousCheckbox.Checked;
+            set => anonymousCheckbox.Checked = value;
+        }
+
+        public bool Disabled {
+            get => !Enabled;
+            set => Enabled = !value;
         }
 
         public void ShowError(string errorMessage) {
@@ -30,6 +45,10 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
         private void OnCancelButtonClicked(object sender, EventArgs e) {
             CancelButtonClicked?.Invoke(this, e);
+        }
+
+        private void OnAnonymousCheckboxChanged(object sender, EventArgs e) {
+            loginPasswordText.Enabled = loginUsernameText.Enabled = !((CheckBox) sender).Checked;
         }
     }
 }

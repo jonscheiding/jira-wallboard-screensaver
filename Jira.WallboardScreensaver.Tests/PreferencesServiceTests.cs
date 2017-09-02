@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Jira.WallboardScreensaver.Services;
 using Microsoft.Win32;
@@ -30,8 +32,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void ReturnsCorrectCookieIfOneIsConfigured() {
-            var cookie = $"cookie{PreferencesService.CookieSeparator}value";
-            _key.SetValue(PreferencesService.LoginCookiesKey, new[] {cookie});
+            _key.SetValue(PreferencesService.LoginCookiesKey, @"{""cookie"": ""value""}");
 
             //
 
@@ -45,10 +46,11 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void ReturnsCorrectCookiesIfManyAreConfigured() {
-            var cookie1 = $"cookie1{PreferencesService.CookieSeparator}value3";
-            var cookie2 = $"cookie2{PreferencesService.CookieSeparator}value2";
-            var cookie3 = $"cookie3{PreferencesService.CookieSeparator}value1";
-            _key.SetValue(PreferencesService.LoginCookiesKey, new[] {cookie1, cookie2, cookie3});
+            _key.SetValue(PreferencesService.LoginCookiesKey, @"{
+                ""cookie1"": ""value3"",
+                ""cookie2"": ""value2"",
+                ""cookie3"": ""value1""
+            }");
 
             //
 
@@ -76,6 +78,19 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void ReturnsLoginUsernameIfItIsConfigured() {
+            _key.SetValue(PreferencesService.LoginUsernameKey, "user");
+
+            //
+
+            var p = _service.GetPreferences();
+
+            //
+
+            Assert.That(p.LoginUsername, Is.EqualTo("user"));
+        }
+
+        [Test]
         public void ReturnsEmptyCookieCollectionIfNoneAreConfigured() {
             //
 
@@ -98,8 +113,19 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void ReturnsNullLoginUsernameIfNoneIsConfigured() {
+            //
+
+            var p = _service.GetPreferences();
+
+            //
+
+            Assert.That(p.LoginUsername, Is.Null);
+        }
+
+        [Test]
         public void ThrowsIfCookiesAreNotValid() {
-            _key.SetValue(PreferencesService.LoginCookiesKey, new[] {"notacookie"});
+            _key.SetValue(PreferencesService.LoginCookiesKey, "notacookie");
 
             // //
 
@@ -115,6 +141,52 @@ namespace Jira.WallboardScreensaver.Tests {
 
             Assert.Throws<ArgumentException>(
                 () => _service.GetPreferences());
+        }
+
+        [Test]
+        public void SavesDashboardUriIfItIsProvided() {
+            var p = new Preferences {DashboardUri = new Uri("http://www.google.com/")};
+
+            //
+
+            _service.SetPreferences(p);
+
+            //
+
+            Assert.That(_key.GetValue(PreferencesService.DashboardUriKey), Is.EqualTo("http://www.google.com/"));
+        }
+
+        [Test]
+        public void SavesLoginCookiesIfTheyAreProvided() {
+            var p = new Preferences {
+                LoginCookies = new ReadOnlyDictionary<string, string>(
+                    new Dictionary<string, string> {
+                        {"cookie1", "value1"},
+                        {"cookie2", "value2"}
+                    }
+                )
+            };
+
+            //
+
+            _service.SetPreferences(p);
+
+            //
+
+            Assert.That(_key.GetValue(PreferencesService.LoginCookiesKey), Is.EqualTo(@"{""cookie1"":""value1"",""cookie2"":""value2""}"));
+        }
+
+        [Test]
+        public void SavesLoginUsernameIfItIsProvided() {
+            var p = new Preferences { LoginUsername = "user" };
+
+            //
+
+            _service.SetPreferences(p);
+
+            //
+
+            Assert.That(_key.GetValue(PreferencesService.LoginUsernameKey), Is.EqualTo("user"));
         }
     }
 }

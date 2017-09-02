@@ -1,13 +1,17 @@
 ﻿using System;
 
 namespace Jira.WallboardScreensaver.EditPreferences {
-    public interface IEditPreferencesView {
+     public interface IEditPreferencesView {
         string DashboardUrl { get; set; }
-        string LoginCookies { get; set; }
+        string LoginUsername { get; set; }
+        string LoginPassword { get; set; }
+        bool Anonymous { get; set; }
+        bool Disabled { get; set; }
+
         event EventHandler SaveButtonClicked;
         event EventHandler CancelButtonClicked;
-        void Close();
 
+        void Close();
         void ShowError(string errorMessage);
     }
 }
