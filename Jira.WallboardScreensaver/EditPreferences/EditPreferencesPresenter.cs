@@ -53,12 +53,16 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
             var baseUri = new Uri(dashboardUri, "/");
 
+            view.Disabled = true;
+
             try {
                 var result = await _jira.Login(baseUri, args.Username, args.Password);
                 view.LoginCookies = Serializer.Serialize(result);
             } catch (HttpRequestException) {
                 view.ShowError("The login failed.");
             }
+
+            view.Disabled = false;
         }
 
 

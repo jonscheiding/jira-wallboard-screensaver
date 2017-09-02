@@ -9,6 +9,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
     public interface IEditPreferencesView {
         string DashboardUrl { get; set; }
         string LoginCookies { get; set; }
+        bool Disabled { get; set; }
         event EventHandler SaveButtonClicked;
         event EventHandler CancelButtonClicked;
         event EventHandler<LoginEventArgs> LoginButtonClicked;

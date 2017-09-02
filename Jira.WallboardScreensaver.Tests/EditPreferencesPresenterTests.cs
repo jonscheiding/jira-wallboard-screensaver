@@ -17,6 +17,10 @@ namespace Jira.WallboardScreensaver.Tests {
         private IEditPreferencesView _view;
         private IPreferencesService _preferences;
         private IJiraService _jira;
+        
+        private static Task TaskThatNeverCompletes<T>() {
+            return new TaskCompletionSource<T>().Task;
+        }
 
         [SetUp]
         public void SetUp() {
@@ -257,6 +261,42 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _view.Received().LoginCookies = @"{""cookie1"":""value1"",""cookie2"":""value2""}";
+        }
+
+        [Test]
+        public void DisablesViewWhileLoggingInToJira() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Returns(TaskThatNeverCompletes<IReadOnlyDictionary<string, string>>());
+
+            //
+
+            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
+                _view, new LoginEventArgs { Username = "", Password = "" });
+
+            //
+
+            _view.Received().Disabled = true;
+        }
+
+        [Test]
+        public void EnablesViewAfterLoginCompletes() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
+            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Returns(Task.FromResult<IReadOnlyDictionary<string, string>>(null));
+
+            //
+
+            _view.LoginButtonClicked += Raise.Event<EventHandler<LoginEventArgs>>(
+                _view, new LoginEventArgs { Username = "", Password = "" });
+
+            //
+
+            _view.Received().Disabled = false;
         }
     }
 }

@@ -21,6 +21,11 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             set => loginCookiesText.Text = value;
         }
 
+        public bool Disabled {
+            get => !Enabled;
+            set => Enabled = !value;
+        }
+
         public void ShowError(string errorMessage) {
             MessageBox.Show(errorMessage, @"Invalid preferences", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
