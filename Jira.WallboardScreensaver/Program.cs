@@ -23,7 +23,7 @@ namespace Jira.WallboardScreensaver {
                 .OnActivated(e => Application.AddMessageFilter(e.Instance))
                 .AsImplementedInterfaces();
 
-            builder.RegisterAdapter<PreferencesService, Preferences>(svc => svc.GetPreferences());
+            builder.RegisterAdapter<IPreferencesService, Preferences>(svc => svc.GetPreferences());
 
             builder.RegisterAssemblyTypes(assembly)
                 .Where(t => t.Name.EndsWith("Presenter"))
