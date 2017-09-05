@@ -1,15 +1,20 @@
 language: csharp
 solution: Jira.WallboardScreensaver.sln
-
 env:
-  - CONFIGURATION=Release
-
+- CONFIGURATION=Release
 script:
-  - msbuild /p:Configuration=$CONFIGURATION
-  - nunit-console ./*/bin/*/*.Tests.dll
-  - msbuild Jira.WallboardScreensaver /p:Configuration=$CONFIGURATION /t:Package
-
+- msbuild /p:Configuration=$CONFIGURATION
+- nunit-console ./*/bin/*/*.Tests.dll
+- msbuild Jira.WallboardScreensaver/Jira.WallboardScreensaver.csproj /p:Configuration=$CONFIGURATION /t:Package
 addons:
   apt:
     packages:
-      - nunit-console
+    - nunit-console
+deploy:
+  provider: releases
+  skip_cleanup: true 
+  api_key:
+    secure: T6I0R7WqPvJdk0Wdn9lBeiqKlvsagCijD37m692ombXS82OtnZgaQwmekG7mLWNQUr8f/eAVCmZdDyP0ZzjweO0I4F9H+um9X9yx/QHtdFaKwRYGRd2EI3H7l4XlpxuAOzhsugF8w8raK0OgMsqpf6BseDlk2WzesgCxOW0gL8H9M+mMec6gEJ7qfPPSDWns8KMXdvtIkTR5tx5io8cd06ovbxgshXQ7rfiOz+vb6eEBZhfjTIZZLlqjW5EoCbBeeeN8FR0z4Fvi3LJrT+ssnklIuOYH3d5GjKPRle4+zfIuJhdFKL/lc5WpxJUE0guSgxu3GcByWTCuwUxEtjJxUvxKAHoITFtdyJBXyUDkTMvsM4MTvp3xcF+rQUJXMDe1hEv80TDWfOxuYVCF+b3Tv/6mO3aDB1yWG72ZtX1q/lq+LZvj0URP9eCsa5WB13chtRt04WQVJBl82RLabi0vigzy11aMJOLxQGPJSpCMwyV5CZ2WEqMWGbAUPfldi5muq5Pum7JLhtgjgGSS80xke9i6eXrvHFa+UtZT3480tEQTFPzk+419XpIdXZWfQsh7lUEuN2Qa1ep6dubkdTJBLPxnfp5KSFOAqQTqi6lkf3SA/p+D+T8ElLRAKUmzMDTfKEc0F0wf7oOwnFMilnsF6Mbhsx118Z+ORdPdJPciy8I=
+  file: ./Jira.WallboardScreensaver/package/Jira.WallboardScreensaver.scr
+  on:
+    tags: true
