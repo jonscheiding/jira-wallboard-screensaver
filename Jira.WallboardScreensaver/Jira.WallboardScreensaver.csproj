@@ -87,9 +87,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <PackageReference Include="ILRepack" />
-  </ItemGroup>
+  <PropertyGroup>
+    <ILRepack Condition="Exists('..\packages\ILRepack.2.0.13\tools\ILRepack.exe')">..\packages\ILRepack.2.0.13\tools\ILRepack.exe</ILRepack>
+    <ILRepack Condition="Exists('..\packages\ilrepack.2.0.13\tools\ILRepack.exe')">..\packages\ilrepack.2.0.13\tools\ILRepack.exe</ILRepack>
+  </PropertyGroup>
   <ItemGroup>
     <MergeInputs Include="$(OutDir)$(TargetFileName)" />
     <MergeInputs Include="$(OutDir)*.dll" />
