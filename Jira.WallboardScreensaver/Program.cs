@@ -51,7 +51,12 @@ namespace Jira.WallboardScreensaver {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            switch (args.Select(a => a.ToLowerInvariant()).FirstOrDefault()) {
+            var arg = args
+                .Select(a => a.ToLowerInvariant())
+                .SelectMany(a => a.Split(':'))
+                .FirstOrDefault();
+
+            switch (arg) {
                 case null: // Show preferences
                 case "/c": // Show preferences
                     Application.Run(Present<EditPreferencesForm, IEditPreferencesView>());
