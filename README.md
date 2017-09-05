@@ -6,7 +6,7 @@ Show your JIRA Wallboards as a screensaver on your information radiator machine.
 
 ## Installation 
 
-1. Download the lastest release from the [releases page](https://github.com/jonscheiding/jira-wallboard-screensaver/releases/latest).  Put the .scr file somewhere on your computer.
+1. Download the lastest release from the [releases page](https://github.com/jonscheiding/jira-wallboard-screensaver/releases/latest).  Unzip the .scr file to somewhere on your computer.
 2. Right click on the .scr file and click "Install".
 
 ## Configuration
