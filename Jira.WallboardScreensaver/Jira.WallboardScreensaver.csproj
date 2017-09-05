@@ -87,7 +87,18 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="AfterBuild">
-    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(OutDir)$(TargetName).scr" />
+  <PropertyGroup>
+    <ILRepack Condition="Exists('..\packages\ILRepack.2.0.13\tools\ILRepack.exe')">..\packages\ILRepack.2.0.13\tools\ILRepack.exe</ILRepack>
+    <ILRepack Condition="Exists('..\packages\ilrepack.2.0.13\tools\ILRepack.exe')">..\packages\ilrepack.2.0.13\tools\ILRepack.exe</ILRepack>
+  </PropertyGroup>
+  <ItemGroup>
+    <MergeInputs Include="$(OutDir)$(TargetFileName)" />
+    <MergeInputs Include="$(OutDir)*.dll" />
+    <MergeOutput Include="package\$(TargetName).scr" />
+  </ItemGroup>
+  <Target Name="Package">
+    <MakeDir Directories="@(MergeOutput->'%(RelativeDir)')" /> 
+    <Delete Files="@(MergeOutput)" /> 
+    <Exec Command="$(ILRepack) /target:winexe /out:&quot;@(MergeOutput)&quot; /ndebug @(MergeInputs->'&quot;%(Identity)&quot;', ' ')" />
   </Target>
 </Project>
