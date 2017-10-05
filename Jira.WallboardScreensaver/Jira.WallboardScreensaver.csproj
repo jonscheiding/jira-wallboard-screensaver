@@ -47,6 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Services\BrowserService.cs" />
     <Compile Include="EditPreferences\EditPreferencesForm.cs">
       <SubType>Form</SubType>
@@ -81,6 +86,10 @@
     <EmbeddedResource Include="EditPreferences\EditPreferencesForm.resx">
       <DependentUpon>EditPreferencesForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Screensaver\ScreensaverForm.resx">
       <DependentUpon>ScreensaverForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -96,9 +105,12 @@
     <MergeInputs Include="$(OutDir)*.dll" />
     <MergeOutput Include="package\$(TargetName).scr" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\refresh_grey_18x18.png" />
+  </ItemGroup>
   <Target Name="Package">
-    <MakeDir Directories="@(MergeOutput->'%(RelativeDir)')" /> 
-    <Delete Files="@(MergeOutput)" /> 
+    <MakeDir Directories="@(MergeOutput->'%(RelativeDir)')" />
+    <Delete Files="@(MergeOutput)" />
     <Exec Command="$(ILRepack) /target:winexe /out:&quot;@(MergeOutput)&quot; /ndebug @(MergeInputs->'&quot;%(Identity)&quot;', ' ')" />
   </Target>
 </Project>
