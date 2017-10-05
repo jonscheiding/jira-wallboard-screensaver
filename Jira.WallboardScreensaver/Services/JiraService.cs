@@ -7,13 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
+using JiraCredentials = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+
 namespace Jira.WallboardScreensaver.Services {
     public interface IJiraService {
-        Task<IReadOnlyDictionary<string, string>> Login(Uri baseUri, string username, string password);
+        Task<JiraCredentials> LoginAsync(Uri baseUri, string username, string password);
     }
 
     public class JiraService : IJiraService {
-        public async Task<IReadOnlyDictionary<string, string>> Login(Uri baseUri, string username, string password) {
+        public async Task<JiraCredentials> LoginAsync(Uri baseUri, string username, string password) {
             var cookies = new CookieContainer();
             var client = new HttpClient(new HttpClientHandler { CookieContainer = cookies }) { BaseAddress = baseUri };
             var serializer = new JavaScriptSerializer();

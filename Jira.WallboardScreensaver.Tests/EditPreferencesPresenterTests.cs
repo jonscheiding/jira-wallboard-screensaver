@@ -174,14 +174,14 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _jira.Received().Login(new Uri("http://www.google.com/"), "user", "pass");
+            _jira.Received().LoginAsync(new Uri("http://www.google.com/"), "user", "pass");
         }
 
         [Test]
         public void DisablesViewWhileLoggingInToJira() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+            _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
                 .Returns(TaskThatNeverCompletes<IReadOnlyDictionary<string, string>>());
 
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
@@ -209,7 +209,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.Anonymous.Returns(false);
 
             var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+            _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
                 .Returns(Task.FromResult(cookies));
 
             //
@@ -234,7 +234,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.LoginPassword.Returns("pass");
 
             var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+            _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
                 .Returns(Task.FromResult(cookies));
 
             //
@@ -298,7 +298,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.LoginPassword.Returns("pass");
             _view.Anonymous.Returns(false);
 
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+            _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
                 .Throws(new HttpRequestException());
 
             //
@@ -326,7 +326,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _jira.DidNotReceive().Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>());
+            _jira.DidNotReceive().LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>());
         }
 
         [Test]

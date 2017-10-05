@@ -31,7 +31,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            await _jiraService.Login(_baseUri, "user", "pass");
+            await _jiraService.LoginAsync(_baseUri, "user", "pass");
             
             //
 
@@ -46,7 +46,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            var result = await _jiraService.Login(_baseUri, "", "");
+            var result = await _jiraService.LoginAsync(_baseUri, "", "");
 
             //
 
@@ -65,7 +65,7 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             Assert.ThrowsAsync<HttpRequestException>(async () =>
-                await _jiraService.Login(_baseUri, "", ""));
+                await _jiraService.LoginAsync(_baseUri, "", ""));
         }
     }
 }

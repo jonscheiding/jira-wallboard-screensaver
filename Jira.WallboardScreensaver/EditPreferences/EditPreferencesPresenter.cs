@@ -54,7 +54,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                 view.Disabled = true;
 
                 try {
-                    preferences.LoginCookies = await _jira.Login(new Uri(dashboardUri, "/"),
+                    preferences.LoginCookies = await _jira.LoginAsync(new Uri(dashboardUri, "/"),
                         view.LoginUsername,
                         view.LoginPassword);
                 } catch (HttpRequestException x) {
