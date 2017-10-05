@@ -10,8 +10,19 @@ using System.Web.Script.Serialization;
 using JiraCredentials = System.Collections.Generic.IReadOnlyDictionary<string, string>;
 
 namespace Jira.WallboardScreensaver.Services {
+    public class JiraDashboard {
+        public JiraDashboard(string name, int id) {
+            Name = name;
+            Id = id;
+        }
+        public string Name { get; }
+
+        public int Id { get; }
+    }
+
     public interface IJiraService {
         Task<JiraCredentials> LoginAsync(Uri baseUri, string username, string password);
+        Task<IEnumerable<JiraDashboard>> GetDashboardsAsync(Uri baseUri, JiraCredentials credentials);
     }
 
     public class JiraService : IJiraService {
@@ -32,6 +43,10 @@ namespace Jira.WallboardScreensaver.Services {
             return cookies.GetCookies(baseUri)
                 .Cast<Cookie>()
                 .ToDictionary(c => c.Name, c => c.Value);
+        }
+
+        public async Task<IEnumerable<JiraDashboard>> GetDashboardsAsync(Uri baseUri, JiraCredentials credentials) {
+            throw new NotImplementedException();
         }
     }
 }
