@@ -24,7 +24,7 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public async Task PostsCredentialsToLoginEndpoin() {
+        public async Task PostsCredentialsToLoginEndpoint() {
             RequestHandler handler = null;
             _http.Stub(x => handler = x.Post("/rest/auth/1/session"))
                 .OK();

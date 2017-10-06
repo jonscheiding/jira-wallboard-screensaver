@@ -5,18 +5,6 @@ using System.Windows.Forms;
 
 namespace Jira.WallboardScreensaver.EditPreferences { 
     public partial class EditPreferencesForm : Form, IEditPreferencesView {
-        private class DashboardDisplayItemWrapper {
-            public IDashboardDisplayItem Item { get; }
-
-            public DashboardDisplayItemWrapper(IDashboardDisplayItem item) {
-                Item = item;
-            }
-
-            public override string ToString() {
-                return Item.Label;
-            }
-        }
-
         public EditPreferencesForm() {
             InitializeComponent();
         }
@@ -24,7 +12,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         public event EventHandler SaveButtonClicked;
         public event EventHandler CancelButtonClicked;
         public event EventHandler LoadDashboardsButtonClicked;
-        public event EventHandler SelectedDashboardChanged;
+        public event EventHandler SelectedDashboardItemChanged;
 
         public string DashboardUrl {
             get => dashboardUrlText.Text;
@@ -52,7 +40,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         }
 
         public IDashboardDisplayItem SelectedDashboardItem {
-            get => ((DashboardDisplayItemWrapper) dashboardsListBox.SelectedItem)?.Item;
+            get => (IDashboardDisplayItem)dashboardsListBox.SelectedItem;
             set {
                 var index = dashboardsListBox.Items.IndexOf(value);
                 if (index == -1) {
@@ -67,11 +55,10 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             set => Enabled = !value;
         }
 
-        public void SetDashboardItems(IEnumerable<IDashboardDisplayItem> dashboardItems) {
+        public void SetDashboardItems(IDashboardDisplayItem[] dashboardItems) {
             dashboardsListBox.SelectedIndex = -1;
             dashboardsListBox.Items.Clear();
-            dashboardsListBox.Items.AddRange(
-                dashboardItems.Select(item => new DashboardDisplayItemWrapper(item)).ToArray<object>());
+            dashboardsListBox.Items.AddRange(dashboardItems.ToArray<object>());
         }
 
         public void ShowError(string errorMessage) {
@@ -95,7 +82,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         }
 
         private void OnDashboardsListBoxSelectedIndexChanged(object sender, EventArgs e) {
-            SelectedDashboardChanged?.Invoke(this, e);
+            SelectedDashboardItemChanged?.Invoke(this, e);
         }
     }
 }

@@ -6,11 +6,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
-
+using Jira.WallboardScreensaver.EditPreferences;
 using JiraCredentials = System.Collections.Generic.IReadOnlyDictionary<string, string>;
 
 namespace Jira.WallboardScreensaver.Services {
-    public class JiraDashboard {
+    public class JiraDashboard : IDashboardDisplayItem {
         public JiraDashboard(string name, int id) {
             Name = name;
             Id = id;
@@ -18,6 +18,10 @@ namespace Jira.WallboardScreensaver.Services {
         public string Name { get; }
 
         public int Id { get; }
+
+        public override string ToString() {
+            return Name;
+        }
     }
 
     public interface IJiraService {

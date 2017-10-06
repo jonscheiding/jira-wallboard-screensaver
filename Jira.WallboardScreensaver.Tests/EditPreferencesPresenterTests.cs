@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using Jira.WallboardScreensaver.EditPreferences;
 using Jira.WallboardScreensaver.Services;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
+
+using JiraCredentials = System.Collections.Generic.IReadOnlyDictionary<string, string>;
 
 namespace Jira.WallboardScreensaver.Tests {
     [TestFixture]
@@ -178,11 +178,96 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void LogsInToJiraWhenLoadDashboardsButtonIsClicked() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl.Returns("http://some-jira.atlassian.net");
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _jira.Received().LoginAsync(new Uri("http://some-jira.atlassian.net/"), "user", "pass");
+        }
+
+        [Test]
+        public void LoadsDashboardsFromJiraAfterLoggingIn() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            var cookies = Substitute.For<JiraCredentials>();
+
+            _view.JiraUrl.Returns("http://some-jira.atlassian.net");
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
+            _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Returns(Task.FromResult(cookies));
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _jira.Received().GetDashboardsAsync(new Uri("http://some-jira.atlassian.net/"), cookies);
+        }
+
+        [Test]
+        public void DoesNotLoginBeforeLoadingDashboardsIfAnonymousIsChecked() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl.Returns("http://some-jira.atlassian.net");
+            _view.Anonymous.Returns(true);
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _jira.Received()
+                .GetDashboardsAsync(
+                    new Uri("http://some-jira.atlassian.net/"),
+                    Arg.Is<JiraCredentials>(cookies => cookies.Count == 0));
+        }
+
+        [Test]
+        public void PutsDashboardsIntoViewWhenTheyAreLoaded() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            var dashboards = new JiraDashboard[0];
+
+            _view.JiraUrl.Returns("http://some-jira.atlassian.net");
+            _view.Anonymous.Returns(true);
+            _jira.GetDashboardsAsync(Arg.Any<Uri>(), Arg.Any<JiraCredentials>())
+                .Returns(Task.FromResult(dashboards.AsEnumerable()));
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            // ReSharper disable once CoVariantArrayConversion
+            _view.Received().SetDashboardItems(Arg.Do<IDashboardDisplayItem[]>(arg => 
+                Assert.That(arg, Is.EquivalentTo(dashboards))));
+        }
+
+        [Test]
         public void DisablesViewWhileLoggingInToJira() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
             _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Returns(TaskThatNeverCompletes<IReadOnlyDictionary<string, string>>());
+                .Returns(TaskThatNeverCompletes<JiraCredentials>());
 
             _view.DashboardUrl.Returns("http://www.google.com/somewhere");
             _view.LoginUsername.Returns("user");
@@ -199,6 +284,42 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void ReEnablesViewAfterLoadingDashboards() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl.Returns("http://some-jira.atlassian.net");
+            _view.LoginUsername.Returns("user");
+            _view.LoginPassword.Returns("pass");
+            _view.Anonymous.Returns(false);
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().Disabled = false;
+        }
+
+        [Test]
+        public void SetsDashboardUrlWhenADashboardIsSelected() {
+            _preferences.GetPreferences().Returns(new Preferences());
+            _presenter.Initialize(_view);
+
+            _view.SelectedDashboardItem.Returns(new JiraDashboard("Test", 1));
+            _view.JiraUrl.Returns("http://test.atlassian.net");
+
+            //
+
+            _view.SelectedDashboardItemChanged += Raise.Event();
+
+            //
+
+            _view.Received().DashboardUrl = "http://test.atlassian.net/plugins/servlet/Wallboard/?dashboardId=1";
+        }
+
+        [Test]
         public void SavesCookiesAndUsernameFromJiraLoginWhenSaveButtonClicked() {
             _preferences.GetPreferences().Returns(new Preferences());
             _presenter.Initialize(_view);
@@ -208,7 +329,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.LoginPassword.Returns("pass");
             _view.Anonymous.Returns(false);
 
-            var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
+            var cookies = Substitute.For<JiraCredentials>();
             _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
                 .Returns(Task.FromResult(cookies));
 
@@ -233,7 +354,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _view.LoginUsername.Returns("user");
             _view.LoginPassword.Returns("pass");
 
-            var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
+            var cookies = Substitute.For<JiraCredentials>();
             _jira.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
                 .Returns(Task.FromResult(cookies));
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Jira.WallboardScreensaver.EditPreferences {
     public interface IDashboardDisplayItem {
-        string Label { get; }
+        string ToString();
     }
 
     public interface IEditPreferencesView {
@@ -18,9 +18,9 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         event EventHandler SaveButtonClicked;
         event EventHandler CancelButtonClicked;
         event EventHandler LoadDashboardsButtonClicked;
-        event EventHandler SelectedDashboardChanged;
+        event EventHandler SelectedDashboardItemChanged;
 
-        void SetDashboardItems(IEnumerable<IDashboardDisplayItem> items);
+        void SetDashboardItems(IDashboardDisplayItem[] items);
         void Close();
         void ShowError(string errorMessage);
     }

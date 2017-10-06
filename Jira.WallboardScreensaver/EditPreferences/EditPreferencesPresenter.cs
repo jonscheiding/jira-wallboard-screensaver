@@ -33,6 +33,10 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                 if (await SavePreferences(view))
                     view.Close();
             };
+            view.LoadDashboardsButtonClicked += async (o, args) => {
+                await LoadDashboardsIntoView(view);
+            };
+            view.SelectedDashboardItemChanged += (o, args) => RefreshDashboardUrl(view);
         }
 
         private async Task<bool> SavePreferences(IEditPreferencesView view) {
@@ -68,6 +72,53 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             _preferences.SetPreferences(preferences);
 
             return true;
+        }
+
+        private async Task LoadDashboardsIntoView(IEditPreferencesView view) {
+            if (!ValidateJiraUri(view, out Uri jiraUri))
+                return;
+
+            IReadOnlyDictionary<string, string> credentials = new Dictionary<string, string>();
+
+            IEnumerable<JiraDashboard> dashboards;
+
+            view.Disabled = false;
+            try {
+                if (!view.Anonymous) {
+                    credentials = await _jira.LoginAsync(jiraUri, view.LoginUsername, view.LoginPassword);
+                }
+
+                dashboards = await _jira.GetDashboardsAsync(jiraUri, credentials);
+            } catch (HttpRequestException x) {
+                view.ShowError(x.Message);
+                return;
+            } finally {
+                view.Disabled = false;
+            }
+
+            // ReSharper disable once CoVariantArrayConversion
+            view.SetDashboardItems(dashboards.ToArray());
+        }
+
+        private void RefreshDashboardUrl(IEditPreferencesView view) {
+            if (!ValidateJiraUri(view, out Uri jiraUri))
+                return;
+
+            var dashboardItem = (JiraDashboard) view.SelectedDashboardItem;
+
+            var dashboardUri = new Uri(jiraUri, $"/plugins/servlet/Wallboard/?dashboardId={dashboardItem.Id}");
+            view.DashboardUrl = dashboardUri.ToString();
+        }
+
+        private static bool ValidateJiraUri(IEditPreferencesView view, out Uri jiraUri) {
+            try {
+                jiraUri = new Uri(view.JiraUrl);
+                return true;
+            } catch (UriFormatException x) {
+                view.ShowError(x.Message);
+                jiraUri = null;
+                return false;
+            }
         }
 
         private static bool ValidateDashboardUri(IEditPreferencesView view, out Uri dashboardUri) {
