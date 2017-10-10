@@ -22,6 +22,15 @@ namespace Jira.WallboardScreensaver.Services {
         public override string ToString() {
             return Name;
         }
+
+        public override int GetHashCode() {
+            return $"{Id}-{Name}".GetHashCode();
+        }
+
+        public override bool Equals(object obj) {
+            var objAs = obj as JiraDashboard;
+            return objAs != null && objAs.Id == Id && objAs.Name == Name;
+        }
     }
 
     public interface IJiraService {
@@ -30,6 +39,25 @@ namespace Jira.WallboardScreensaver.Services {
     }
 
     public class JiraService : IJiraService {
+        private readonly JavaScriptSerializer _serializer = new JavaScriptSerializer();
+
+#pragma warning disable 649
+        // ReSharper disable InconsistentNaming
+        // ReSharper disable ClassNeverInstantiated.Local
+        private class DashboardsResponseData {
+            public DashboardResponseData[] dashboards;
+            public string next;
+        }
+
+        private class DashboardResponseData {
+            public string id;
+            public string name;
+        }
+
+        // ReSharper restore InconsistentNaming
+        // ReSharper restore ClassNeverInstantiated.Local
+#pragma warning restore 649
+
         public async Task<JiraCredentials> LoginAsync(Uri baseUri, string username, string password) {
             var cookies = new CookieContainer();
             var client = new HttpClient(new HttpClientHandler { CookieContainer = cookies }) { BaseAddress = baseUri };
@@ -49,8 +77,37 @@ namespace Jira.WallboardScreensaver.Services {
                 .ToDictionary(c => c.Name, c => c.Value);
         }
 
-        public async Task<IEnumerable<JiraDashboard>> GetDashboardsAsync(Uri baseUri, JiraCredentials credentials) {
-            throw new NotImplementedException();
+        public Task<IEnumerable<JiraDashboard>> GetDashboardsAsync(Uri baseUri, JiraCredentials credentials) {
+            return GetDashboardsAsync(baseUri, "/rest/api/2/dashboard", credentials);
+        }
+
+        private async Task<IEnumerable<JiraDashboard>> GetDashboardsAsync(Uri baseUri, string path,
+            JiraCredentials credentials) {
+
+            var cookies = new CookieContainer();
+            var client = new HttpClient(new HttpClientHandler { CookieContainer = cookies }) { BaseAddress = baseUri };
+
+            foreach (var kvCookie in credentials) {
+                cookies.Add(baseUri, new Cookie(kvCookie.Key, kvCookie.Value));
+            }
+
+            var result = await client.GetAsync(path);
+
+            if (!result.IsSuccessStatusCode) {
+                throw new HttpRequestException($"Authentication failed with status {result.StatusCode}.");
+            }
+
+            var content = await result.Content.ReadAsStringAsync();
+            var data = _serializer.Deserialize<DashboardsResponseData>(content);
+
+            var results = data.dashboards
+                .Select(dashboard => new JiraDashboard(dashboard.name, int.Parse(dashboard.id)));
+
+            if (data.next != null) {
+                results = results.Concat(await GetDashboardsAsync(baseUri, data.next, credentials));
+            }
+
+            return results;
         }
     }
 }
