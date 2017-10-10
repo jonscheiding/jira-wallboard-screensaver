@@ -465,7 +465,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void SetsLoginUsernameIfThereIsOne() {
-            _preferences.GetPreferences().Returns(new Preferences{ LoginUsername = "user" });
+            _preferences.GetPreferences().Returns(new Preferences { LoginUsername = "user" });
 
             //
 
@@ -474,6 +474,20 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _view.Received().LoginUsername = "user";
+        }
+
+        [Test]
+        public void SetsJiraUrlIfThereIsOne() {
+            _preferences.GetPreferences()
+                .Returns(new Preferences {DashboardUri = new Uri("http://somejira.atlassian.net/some/dashboard/url")});
+
+            //
+
+            _presenter.Initialize(_view);
+
+            //
+
+            _view.Received().JiraUrl = "http://somejira.atlassian.net/";
         }
 
         [Test]

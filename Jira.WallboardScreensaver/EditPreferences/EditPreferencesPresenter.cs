@@ -9,8 +9,6 @@ using Jira.WallboardScreensaver.Services;
 
 namespace Jira.WallboardScreensaver.EditPreferences {
     public class EditPreferencesPresenter : IPresenter<IEditPreferencesView> {
-        private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
-
         private readonly IPreferencesService _preferences;
         private readonly IJiraService _jira;
 
@@ -22,8 +20,10 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         public void Initialize(IEditPreferencesView view) {
             var preferences = _preferences.GetPreferences();
 
-            if (preferences.DashboardUri != null)
+            if (preferences.DashboardUri != null) {
                 view.DashboardUrl = preferences.DashboardUri.ToString();
+                view.JiraUrl = new Uri(preferences.DashboardUri, "/").ToString();
+            }
 
             view.Anonymous = preferences.LoginCookies.Count == 0;
             view.LoginUsername = preferences.LoginUsername ?? string.Empty;

@@ -51,9 +51,8 @@
             // 
             // label1
             // 
-            label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(12, 309);
+            label1.Location = new System.Drawing.Point(13, 317);
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(87, 13);
             label1.TabIndex = 0;
@@ -63,7 +62,7 @@
             // 
             cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            cancelButton.Location = new System.Drawing.Point(309, 332);
+            cancelButton.Location = new System.Drawing.Point(309, 360);
             cancelButton.Name = "cancelButton";
             cancelButton.Size = new System.Drawing.Size(75, 23);
             cancelButton.TabIndex = 4;
@@ -75,7 +74,7 @@
             // 
             saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             saveButton.DialogResult = System.Windows.Forms.DialogResult.OK;
-            saveButton.Location = new System.Drawing.Point(228, 332);
+            saveButton.Location = new System.Drawing.Point(228, 360);
             saveButton.Name = "saveButton";
             saveButton.Size = new System.Drawing.Size(75, 23);
             saveButton.TabIndex = 5;
@@ -130,11 +129,11 @@
             // 
             // dashboardUrlText
             // 
-            this.dashboardUrlText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dashboardUrlText.Location = new System.Drawing.Point(105, 306);
+            this.dashboardUrlText.Location = new System.Drawing.Point(105, 314);
+            this.dashboardUrlText.Multiline = true;
             this.dashboardUrlText.Name = "dashboardUrlText";
-            this.dashboardUrlText.Size = new System.Drawing.Size(279, 20);
+            this.dashboardUrlText.ReadOnly = true;
+            this.dashboardUrlText.Size = new System.Drawing.Size(279, 36);
             this.dashboardUrlText.TabIndex = 3;
             // 
             // loginUsernameText
@@ -184,7 +183,7 @@
             this.dashboardsListBox.FormattingEnabled = true;
             this.dashboardsListBox.Location = new System.Drawing.Point(12, 135);
             this.dashboardsListBox.Name = "dashboardsListBox";
-            this.dashboardsListBox.Size = new System.Drawing.Size(372, 160);
+            this.dashboardsListBox.Size = new System.Drawing.Size(372, 173);
             this.dashboardsListBox.TabIndex = 17;
             this.dashboardsListBox.SelectedIndexChanged += new System.EventHandler(this.OnDashboardsListBoxSelectedIndexChanged);
             // 
@@ -209,7 +208,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = cancelButton;
-            this.ClientSize = new System.Drawing.Size(396, 366);
+            this.ClientSize = new System.Drawing.Size(396, 394);
             this.Controls.Add(label6);
             this.Controls.Add(this.jiraUrlText);
             this.Controls.Add(this.loadDashboardsButton);
