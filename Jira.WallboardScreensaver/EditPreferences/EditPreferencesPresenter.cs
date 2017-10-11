@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Jira.WallboardScreensaver.Services;
@@ -12,14 +13,16 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                 _preferences = preferences;
             }
 
-            public string JiraUrl { get; set; }
-            public string Username { get; set; }
-            public void UpdateJiraCredentials(IReadOnlyDictionary<string, string> credentials) {
+            public string JiraUrl => _preferences.JiraUri.ToString();
+            public string Username => _preferences.LoginUsername;
+            public void UpdateJiraCredentials(IReadOnlyDictionary<string, string> credentials, string username) {
                 _preferences.LoginCookies = credentials;
+                _preferences.LoginUsername = username;
             }
 
             public void ClearJiraCredentials() {
-                
+                _preferences.LoginCookies = new Dictionary<string, string>();
+                _preferences.LoginUsername = null;
             }
         }
 
@@ -39,19 +42,24 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         public void Initialize(IEditPreferencesView view) {
             var preferences = _preferences.GetPreferences();
 
+            view.JiraUrl = preferences.JiraUri?.ToString();
+
             view.JiraLoginButtonClicked += (sender, e) => ShowJiraLoginView(view, preferences);
             view.SaveButtonClicked += (sender, e) => SavePreferences(view, preferences);
+            view.CancelButtonClicked += (sender, e) => view.Close();
             view.LoadDashboardsButtonClicked += async (sender, e) => await LoadJiraDashboards(view, preferences);
         }
 
         private void ShowJiraLoginView(IEditPreferencesView view, Preferences preferences) {
-            var parent = new JiraLoginParent(preferences) {
-                JiraUrl = view.JiraUrl,
-                Username = preferences.LoginUsername
-            };
+            if (!TryValidateJiraUri(view, preferences)) {
+                return;
+            }
+
+            var parent = new JiraLoginParent(preferences);
 
             var childView = view.CreateJiraLoginView();
             _childPresenter.Initialize(childView, parent);
+            view.ShowJiraLoginView(childView);
         }
 
         private async Task LoadJiraDashboards(IEditPreferencesView view, Preferences preferences) {

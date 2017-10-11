@@ -36,6 +36,10 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             return new JiraLoginForm();
         }
 
+        public void ShowJiraLoginView(IJiraLoginView view) {
+            ((Form) view).ShowDialog();
+        }
+
         private void OnJiraLoginButtonClick(object sender, EventArgs e) {
             JiraLoginButtonClicked?.Invoke(this, e);
         }

@@ -59,7 +59,7 @@ namespace Jira.WallboardScreensaver {
             switch (arg) {
                 case null: // Show preferences
                 case "/c": // Show preferences
-                    //Application.Run(Present<EditPreferencesForm, IEditPreferencesView>());
+                    Application.Run(Present<EditPreferencesForm, IEditPreferencesView>());
                     break;
                 case "/p": // Show preview (do nothing)
                     return;

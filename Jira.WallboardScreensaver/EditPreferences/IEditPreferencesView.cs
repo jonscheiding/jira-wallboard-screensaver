@@ -13,6 +13,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         event EventHandler CancelButtonClicked;
 
         IJiraLoginView CreateJiraLoginView();
+        void ShowJiraLoginView(IJiraLoginView view);
         void Close();
     }
 

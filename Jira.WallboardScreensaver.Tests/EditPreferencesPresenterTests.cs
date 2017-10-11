@@ -39,6 +39,7 @@ namespace Jira.WallboardScreensaver.Tests {
         public void PresentsJiraLoginViewWhenLoginButtonClicked() {
             _presenter.Initialize(_view);
             _view.CreateJiraLoginView().Returns(_childView);
+            _view.JiraUrl = "http://somejira.atlassian.net";
 
             //
 
@@ -47,6 +48,22 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _childPresenter.Received().Initialize(_childView, Arg.Any<IJiraLoginParent>());
+            _view.Received().ShowJiraLoginView(_childView);
+        }
+
+        [Test]
+        public void ShowsErrorIfLoginButtonClickedWithNoJiraUrl() {
+            _presenter.Initialize(_view);
+            _view.CreateJiraLoginView().Returns(_childView);
+            _view.JiraUrl = string.Empty;
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
         }
 
         [Test]
@@ -63,7 +80,23 @@ namespace Jira.WallboardScreensaver.Tests {
 
             _childPresenter.Received()
                 .Initialize(_childView, Arg.Is<IJiraLoginParent>(
-                    arg => arg.JiraUrl == "http://somejira.atlassian.net"));
+                    arg => arg.JiraUrl == "http://somejira.atlassian.net/"));
+        }
+
+        [Test]
+        public void PutsJiraUriFromPreferencesIntoView() {
+            _preferences.GetPreferences()
+                .Returns(new Preferences {
+                    JiraUri = new Uri("http://somejira.atlassian.net")
+                });
+
+            //
+
+            _presenter.Initialize(_view);
+            
+            //
+
+            _view.Received().JiraUrl = "http://somejira.atlassian.net/";
         }
 
         [Test]
@@ -81,6 +114,7 @@ namespace Jira.WallboardScreensaver.Tests {
         public void PassesUsernameFromPreferencesToJiraLoginView() {
             _preferences.GetPreferences().Returns(new Preferences {LoginUsername = "username"});
             _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
 
             //
 
@@ -131,9 +165,9 @@ namespace Jira.WallboardScreensaver.Tests {
                     LoginCookies = credentials
                 });
 
-            _view.JiraUrl = "http://somejira.atlassian.net";
-
             _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
 
             //
 
@@ -148,12 +182,12 @@ namespace Jira.WallboardScreensaver.Tests {
         public void UsesCredentialsFromJiraLoginViewIfTheyHaveBeenUpdated() {
             var credentials = Substitute.For<JiraCredentials>();
 
-            _view.JiraUrl = "http://somejira.atlassian.net";
-
             _presenter.Initialize(_view);
 
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
             _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
-                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials));
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
 
             //
 
@@ -217,13 +251,13 @@ namespace Jira.WallboardScreensaver.Tests {
         public void SavesUpdatedCredentialsInPreferences() {
             var credentials = Substitute.For<JiraCredentials>();
 
+            _presenter.Initialize(_view);
+
             _view.JiraUrl = "http://somejira.atlassian.net";
             _view.SelectedDashboardItem = new JiraDashboard("", 1);
 
-            _presenter.Initialize(_view);
-
             _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
-                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials));
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
 
             //
 
@@ -235,6 +269,28 @@ namespace Jira.WallboardScreensaver.Tests {
             _preferences.Received()
                 .SetPreferences(Arg.Is<Preferences>(
                     p => p.LoginCookies == credentials));
+        }
+
+        [Test]
+        public void SavesNoCredentialsInPreferencesIfTheyAreCleared() {
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().ClearJiraCredentials());
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _preferences.Received()
+                .SetPreferences(Arg.Is<Preferences>(
+                    p => p.LoginCookies.Count == 0 && p.LoginUsername == null));
         }
 
         [Test]
@@ -336,6 +392,18 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().Close();
+        }
+        [Test]
+        public void ClosesFormWhenCancelButtonClicked() {
+            _presenter.Initialize(_view);
+
+            //
+
+            _view.CancelButtonClicked += Raise.Event();
 
             //
 

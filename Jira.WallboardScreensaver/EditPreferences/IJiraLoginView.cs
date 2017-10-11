@@ -16,9 +16,9 @@ namespace Jira.WallboardScreensaver.EditPreferences {
 
     public interface IJiraLoginParent {
         string JiraUrl { get; }
-        string Username { get; set; }
+        string Username { get; }
 
-        void UpdateJiraCredentials(IReadOnlyDictionary<string, string> credentials);
+        void UpdateJiraCredentials(IReadOnlyDictionary<string, string> credentials, string username);
         void ClearJiraCredentials();
     }
 }

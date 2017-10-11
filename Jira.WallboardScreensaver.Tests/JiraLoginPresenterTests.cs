@@ -175,7 +175,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _parent.Received().UpdateJiraCredentials(credentials);
+            _parent.Received().UpdateJiraCredentials(credentials, "username");
         }
 
         [Test]
@@ -219,7 +219,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void SetsUsernameIntoViewIfParentProvidesIt() {
-            _parent.Username = "username";
+            _parent.Username.Returns("username");
 
             //
 

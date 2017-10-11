@@ -35,7 +35,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                     new Uri(parent.JiraUrl),
                     view.Username, view.Password);
 
-                parent.UpdateJiraCredentials(credentials);
+                parent.UpdateJiraCredentials(credentials, view.Username);
 
                 view.Close();
             } catch (Exception x) {
