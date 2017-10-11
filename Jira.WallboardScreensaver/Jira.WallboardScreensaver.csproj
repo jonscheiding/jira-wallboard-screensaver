@@ -47,22 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EditPreferences2\EditPreferencesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="EditPreferences2\EditPreferencesForm.Designer.cs">
-      <DependentUpon>EditPreferencesForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="EditPreferences2\EditPreferencesPresenter.cs" />
-    <Compile Include="EditPreferences2\IEditPreferencesView.cs" />
-    <Compile Include="EditPreferences2\IJiraLoginView.cs" />
-    <Compile Include="EditPreferences2\JiraLoginForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="EditPreferences2\JiraLoginForm.Designer.cs">
-      <DependentUpon>JiraLoginForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="EditPreferences2\JiraLoginPresenter.cs" />
     <Compile Include="EditPreferences\EditPreferencesForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -71,6 +55,14 @@
     </Compile>
     <Compile Include="EditPreferences\EditPreferencesPresenter.cs" />
     <Compile Include="EditPreferences\IEditPreferencesView.cs" />
+    <Compile Include="EditPreferences\IJiraLoginView.cs" />
+    <Compile Include="EditPreferences\JiraLoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditPreferences\JiraLoginForm.Designer.cs">
+      <DependentUpon>JiraLoginForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditPreferences\JiraLoginPresenter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -100,14 +92,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="EditPreferences2\EditPreferencesForm.resx">
-      <DependentUpon>EditPreferencesForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="EditPreferences2\JiraLoginForm.resx">
-      <DependentUpon>JiraLoginForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="EditPreferences\EditPreferencesForm.resx">
       <DependentUpon>EditPreferencesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditPreferences\JiraLoginForm.resx">
+      <DependentUpon>JiraLoginForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

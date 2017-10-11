@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Jira.WallboardScreensaver.EditPreferences2 {
+namespace Jira.WallboardScreensaver.EditPreferences {
     public interface IJiraLoginView {
         string Username { get; set; }
         string Password { get; set; }

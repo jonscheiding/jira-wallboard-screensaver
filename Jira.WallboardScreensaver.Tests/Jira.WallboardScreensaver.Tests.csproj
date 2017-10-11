@@ -56,7 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EditPreferencesPresenterTests.cs" />
-    <Compile Include="EditPreferencesPresenterTests2.cs" />
     <Compile Include="JiraLoginPresenterTests.cs" />
     <Compile Include="JiraServiceTests.cs" />
     <Compile Include="PreferencesServiceTests.cs" />

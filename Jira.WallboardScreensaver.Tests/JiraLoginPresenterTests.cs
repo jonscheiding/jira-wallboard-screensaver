@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Jira.WallboardScreensaver.EditPreferences2;
+using Jira.WallboardScreensaver.EditPreferences;
 using Jira.WallboardScreensaver.Services;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;

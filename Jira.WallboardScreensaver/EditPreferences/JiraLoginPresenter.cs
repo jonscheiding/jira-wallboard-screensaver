@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Jira.WallboardScreensaver.Services;
 
-namespace Jira.WallboardScreensaver.EditPreferences2 {
+namespace Jira.WallboardScreensaver.EditPreferences {
     public class JiraLoginPresenter : IChildPresenter<IJiraLoginView, IJiraLoginParent> {
         private readonly IJiraService _jiraService;
         private readonly IErrorMessageService _errors;

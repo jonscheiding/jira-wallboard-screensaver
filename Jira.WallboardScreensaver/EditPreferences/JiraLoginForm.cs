@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Jira.WallboardScreensaver.EditPreferences2 {
+namespace Jira.WallboardScreensaver.EditPreferences {
     public partial class JiraLoginForm : Form, IJiraLoginView {
         public JiraLoginForm() {
             InitializeComponent();

@@ -1,4 +1,4 @@
-﻿namespace Jira.WallboardScreensaver.EditPreferences2 {
+﻿namespace Jira.WallboardScreensaver.EditPreferences {
     partial class JiraLoginForm {
         /// <summary>
         /// Required designer variable.
