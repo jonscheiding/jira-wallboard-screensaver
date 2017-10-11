@@ -25,12 +25,14 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
         private readonly IChildPresenter<IJiraLoginView, IJiraLoginParent> _childPresenter;
         private readonly IPreferencesService _preferences;
         private readonly IJiraService _jira;
+        private readonly IErrorMessageService _errors;
 
         public EditPreferencesPresenter(IChildPresenter<IJiraLoginView, IJiraLoginParent> childPresenter,
-            IPreferencesService preferences, IJiraService jira) {
+            IPreferencesService preferences, IJiraService jira, IErrorMessageService errors) {
             _childPresenter = childPresenter;
             _preferences = preferences;
             _jira = jira;
+            _errors = errors;
         }
 
         public void Initialize(IEditPreferencesView view) {

@@ -8,7 +8,6 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
         bool Disabled { get; set; }
 
         void Close();
-        void ShowError(string errorMessage);
 
         event EventHandler LoginButtonClicked;
         event EventHandler CancelButtonClicked;

@@ -6,8 +6,11 @@ using Jira.WallboardScreensaver.Services;
 namespace Jira.WallboardScreensaver.EditPreferences2 {
     public class JiraLoginPresenter : IChildPresenter<IJiraLoginView, IJiraLoginParent> {
         private readonly IJiraService _jiraService;
-        public JiraLoginPresenter(IJiraService jiraService) {
+        private readonly IErrorMessageService _errors;
+
+        public JiraLoginPresenter(IJiraService jiraService, IErrorMessageService errors) {
             _jiraService = jiraService;
+            _errors = errors;
         }
 
         public void Initialize(IJiraLoginView view, IJiraLoginParent parent) {
@@ -23,7 +26,7 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
 
         private async void OnLoginButtonClicked(IJiraLoginView view, IJiraLoginParent parent) {
             if (string.IsNullOrEmpty(view.Username) || string.IsNullOrEmpty(view.Password)) {
-                view.ShowError("Please enter your username and password.");
+                _errors.ShowErrorMessage(view, "Please enter your username and password.", "Invalid Credentials");
                 return;
             }
 
@@ -38,7 +41,7 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
 
                 view.Close();
             } catch (Exception x) {
-                view.ShowError(x.Message);
+                _errors.ShowErrorMessage(view, x.Message, "Invalid Credentials");
             } finally {
                 view.Disabled = false;
             }

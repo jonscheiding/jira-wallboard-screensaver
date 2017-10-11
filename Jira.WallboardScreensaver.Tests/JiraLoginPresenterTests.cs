@@ -18,14 +18,16 @@ namespace Jira.WallboardScreensaver.Tests {
 
         private IJiraLoginView _view;
         private IJiraLoginParent _parent;
+        private IErrorMessageService _errors;
 
         [SetUp]
         public void SetUp() {
             _jiraService = Substitute.For<IJiraService>();
+            _errors = TestHelper.LogErrors(Substitute.For<IErrorMessageService>());
 
             _view = Substitute.For<IJiraLoginView>();
             _parent = Substitute.For<IJiraLoginParent>();
-            _presenter = new JiraLoginPresenter(_jiraService);
+            _presenter = new JiraLoginPresenter(_jiraService, _errors);
         }
 
         [Test]
@@ -40,7 +42,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _view.Received().ShowError(Arg.Any<string>());
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
         }
 
         [Test]
@@ -55,7 +57,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _view.Received().ShowError(Arg.Any<string>());
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
         }
 
         [Test]
@@ -134,7 +136,7 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _jiraService.Received().LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>());
-            _view.Received().ShowError(Arg.Any<string>());
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
         }
 
         [Test]

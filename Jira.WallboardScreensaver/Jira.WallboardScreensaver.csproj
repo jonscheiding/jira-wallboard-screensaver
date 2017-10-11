@@ -79,6 +79,7 @@
     <Compile Include="Services\BrowserService.cs" />
     <Compile Include="IPresenter.cs" />
     <Compile Include="Preferences.cs" />
+    <Compile Include="Services\ErrorMessageService.cs" />
     <Compile Include="Services\JiraService.cs" />
     <Compile Include="Services\PreferencesService.cs" />
     <Compile Include="Screensaver\IScreensaverView.cs" />

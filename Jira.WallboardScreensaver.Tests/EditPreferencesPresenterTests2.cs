@@ -14,6 +14,7 @@ namespace Jira.WallboardScreensaver.Tests {
         private IJiraLoginView _childView;
         private IPreferencesService _preferences;
         private IJiraService _jira;
+        private IErrorMessageService _errors;
 
         [SetUp]
         public void SetUp() {
@@ -22,8 +23,9 @@ namespace Jira.WallboardScreensaver.Tests {
             _childView = Substitute.For<IJiraLoginView>();
             _preferences = Substitute.For<IPreferencesService>();
             _jira = Substitute.For<IJiraService>();
+            _errors = Substitute.For<IErrorMessageService>();
 
-            _presenter = new EditPreferencesPresenter(_childPresenter, _preferences, _jira);
+            _presenter = new EditPreferencesPresenter(_childPresenter, _preferences, _jira, _errors);
 
             _view.CreateJiraLoginView().Returns(_childView);
         }
