@@ -65,8 +65,8 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void ReturnsDashboardUriIfItIsConfigured() {
-            _key.SetValue(PreferencesService.DashboardUriKey, "http://www.google.com");
+        public void ReturnsJiraUriIfItIsConfigured() {
+            _key.SetValue(PreferencesService.JiraUriKey, "http://www.google.com");
 
             //
 
@@ -74,7 +74,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            Assert.That(p.DashboardUri, Is.EqualTo(new Uri("http://www.google.com")));
+            Assert.That(p.JiraUri, Is.EqualTo(new Uri("http://www.google.com")));
         }
 
         [Test]
@@ -91,6 +91,19 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void ReturnsDashboardIdIfItIsConfigured() {
+            _key.SetValue(PreferencesService.DashboardIdKey, 1);
+
+            //
+
+            var p = _service.GetPreferences();
+
+            //
+
+            Assert.That(p.DashboardId, Is.EqualTo(1));
+        }
+
+        [Test]
         public void ReturnsEmptyCookieCollectionIfNoneAreConfigured() {
             //
 
@@ -102,14 +115,25 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void ReturnsNullDashboardUriIfNoneIsConfigured() {
+        public void ReturnsNullDashboardIdIfNoneIsConfigured() {
             //
 
             var p = _service.GetPreferences();
 
             //
 
-            Assert.That(p.DashboardUri, Is.Null);
+            Assert.That(p.DashboardId, Is.Null);
+        }
+
+        [Test]
+        public void ReturnsNulJiraUriIfNoneIsConfigured() {
+            //
+
+            var p = _service.GetPreferences();
+
+            //
+
+            Assert.That(p.JiraUri, Is.Null);
         }
 
         [Test]
@@ -135,7 +159,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
         [Test]
         public void ThrowsIfDashboardUriIsNotValid() {
-            _key.SetValue(PreferencesService.DashboardUriKey, "aabnn");
+            _key.SetValue(PreferencesService.JiraUriKey, "aabnn");
 
             // //
 
@@ -144,8 +168,8 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void SavesDashboardUriIfItIsProvided() {
-            var p = new Preferences {DashboardUri = new Uri("http://www.google.com/")};
+        public void SavesJiraUriIfItIsProvided() {
+            var p = new Preferences {JiraUri = new Uri("http://www.google.com/")};
 
             //
 
@@ -153,7 +177,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            Assert.That(_key.GetValue(PreferencesService.DashboardUriKey), Is.EqualTo("http://www.google.com/"));
+            Assert.That(_key.GetValue(PreferencesService.JiraUriKey), Is.EqualTo("http://www.google.com/"));
         }
 
         [Test]
@@ -187,6 +211,19 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             Assert.That(_key.GetValue(PreferencesService.LoginUsernameKey), Is.EqualTo("user"));
+        }
+
+        [Test]
+        public void SavesDashboardIdIfItIsProvided() {
+            var p = new Preferences { DashboardId = 1 };
+
+            //
+
+            _service.SetPreferences(p);
+
+            //
+
+            Assert.That(_key.GetValue(PreferencesService.DashboardIdKey), Is.EqualTo(1));
         }
     }
 }

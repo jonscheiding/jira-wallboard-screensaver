@@ -51,7 +51,7 @@ namespace Jira.WallboardScreensaver.Tests {
         [Test]
         public void DisplaysConfiguredUrlOnLoad() {
             var uri = new Uri("http://google.com/");
-            _preferences.DashboardUri.Returns(uri);
+            _preferences.GetDashboardUri().Returns(uri);
 
             //
 
@@ -95,7 +95,7 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void IgnoresUserActivityForOneSecondAfterUserIdle() {
+        public void IgnoresUserActivityImmediatelyAfterUserIdle() {
             _presenter.Initialize(_view);
             _view.Load += Raise.Event();
 
@@ -104,25 +104,23 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _filter.UserIdle += Raise.Event();
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
             _filter.UserActive += Raise.Event();
 
             //
 
             _view.Received(0).ControlsVisible = true;
-            _taskService.Received(2).Delay(TimeSpan.FromSeconds(1));
         }
 
         [Test]
         public void SetsCookiesAndConfiguresEmulationOnInitialize() {
-            var uri = new Uri("http://www.google.com/some_uri");
             var baseUri = new Uri("http://www.google.com/");
             var cookies = new Dictionary<string, string> {
                 {"cookie1", "value1"},
                 {"cookie2", "value2"}
             };
 
-            _preferences.DashboardUri.Returns(uri);
+            _preferences.JiraUri.Returns(baseUri);
             _preferences.LoginCookies.Returns(cookies);
 
             //
