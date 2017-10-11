@@ -1,17 +1,24 @@
 ﻿using System;
 
 namespace Jira.WallboardScreensaver.EditPreferences {
-     public interface IEditPreferencesView {
-        string DashboardUrl { get; set; }
-        string LoginUsername { get; set; }
-        string LoginPassword { get; set; }
-        bool Anonymous { get; set; }
-        bool Disabled { get; set; }
+    public interface IEditPreferencesView {
+        string JiraUrl { get; set; }
+        IDashboardDisplayItem[] DashboardItems { get; set; }
+        IDashboardDisplayItem SelectedDashboardItem { get; set; }
+        bool DisplayHasCredentials { get; set; }
 
+        event EventHandler SelectedDashboardItemChanged;
+        event EventHandler JiraLoginButtonClicked;
+        event EventHandler LoadDashboardsButtonClicked;
         event EventHandler SaveButtonClicked;
         event EventHandler CancelButtonClicked;
 
+        IJiraLoginView CreateJiraLoginView();
+        void ShowJiraLoginView(IJiraLoginView view);
         void Close();
-        void ShowError(string errorMessage);
+    }
+
+    public interface IDashboardDisplayItem {
+        string ToString();
     }
 }

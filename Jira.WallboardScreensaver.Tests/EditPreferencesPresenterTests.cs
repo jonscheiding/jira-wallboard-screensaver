@@ -1,87 +1,106 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
-using System.Security.Policy;
+using System.Threading;
 using System.Threading.Tasks;
 using Jira.WallboardScreensaver.EditPreferences;
 using Jira.WallboardScreensaver.Services;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
+using JiraCredentials = System.Collections.Generic.IReadOnlyDictionary<string, string>;
 
 namespace Jira.WallboardScreensaver.Tests {
     [TestFixture]
     public class EditPreferencesPresenterTests {
         private EditPreferencesPresenter _presenter;
         private IEditPreferencesView _view;
+        private IChildPresenter<IJiraLoginView, IJiraLoginParent> _childPresenter;
+        private IJiraLoginView _childView;
         private IPreferencesService _preferences;
         private IJiraService _jira;
-        
-        private static Task TaskThatNeverCompletes<T>() {
-            return new TaskCompletionSource<T>().Task;
-        }
+        private IErrorMessageService _errors;
 
         [SetUp]
         public void SetUp() {
-            _preferences = Substitute.For<IPreferencesService>();
             _view = Substitute.For<IEditPreferencesView>();
+            _childPresenter = Substitute.For<IChildPresenter<IJiraLoginView, IJiraLoginParent>>();
+            _childView = Substitute.For<IJiraLoginView>();
+            _preferences = Substitute.For<IPreferencesService>();
             _jira = Substitute.For<IJiraService>();
+            _errors = TestHelper.LogErrors(Substitute.For<IErrorMessageService>());
 
-            _presenter = new EditPreferencesPresenter(_preferences, _jira);
+            _presenter = new EditPreferencesPresenter(_childPresenter, _preferences, _jira, _errors);
+
+            _view.CreateJiraLoginView().Returns(_childView);
         }
 
         [Test]
-        public void CancelClosesView() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void PresentsJiraLoginViewWhenLoginButtonClicked() {
+            _presenter.Initialize(_view);
+            _view.CreateJiraLoginView().Returns(_childView);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _childPresenter.Received().Initialize(_childView, Arg.Any<IJiraLoginParent>());
+            _view.Received().ShowJiraLoginView(_childView);
+        }
+
+        [Test]
+        public void ShowsErrorIfLoginButtonClickedWithNoJiraUrl() {
+            _presenter.Initialize(_view);
+            _view.CreateJiraLoginView().Returns(_childView);
+            _view.JiraUrl = string.Empty;
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+        }
+
+        [Test]
+        public void PassesJiraUrlToJiraLoginView() {
             _presenter.Initialize(_view);
 
-            //
-
-            _view.CancelButtonClicked += Raise.Event();
+            _view.JiraUrl = "http://somejira.atlassian.net";
 
             //
 
-            _view.Received().Close();
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _childPresenter.Received()
+                .Initialize(_childView, Arg.Is<IJiraLoginParent>(
+                    arg => arg.JiraUrl == "http://somejira.atlassian.net/"));
         }
 
         [Test]
-        public void CancelClosesViewIfPreferencesAreNotValid() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("bad");
-
-            //
-
-            _view.CancelButtonClicked += Raise.Event();
-
-            //
-
-            _view.Received().Close();
-        }
-
-        [Test]
-        public void DoesNotSavePreferencesWhenCancelButtonClicked() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void PutsJiraUriFromPreferencesIntoView() {
+            _preferences.GetPreferences()
+                .Returns(new Preferences {
+                    JiraUri = new Uri("http://somejira.atlassian.net")
+                });
 
             //
 
             _presenter.Initialize(_view);
-            _view.CancelButtonClicked += Raise.Event();
-
+            
             //
 
-            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+            _view.Received().JiraUrl = "http://somejira.atlassian.net/";
         }
 
         [Test]
-        public void LoadsPreferencesIntoView() {
-            var p = new Preferences {
-                DashboardUri = new Uri("http://www.google.com/")
-            };
-
-            _preferences.GetPreferences().Returns(p);
-
+        public void LoadsPreferencesWhenViewIsInitialized() {
             //
 
             _presenter.Initialize(_view);
@@ -89,14 +108,118 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _preferences.Received().GetPreferences();
-            _view.Received().DashboardUrl = "http://www.google.com/";
         }
 
         [Test]
-        public void SaveDoesNotCloseViewIfUrlIsNotValid() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void PassesUsernameFromPreferencesToJiraLoginView() {
+            _preferences.GetPreferences().Returns(new Preferences {LoginUsername = "username"});
             _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("bad");
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _childPresenter.Received()
+                .Initialize(_childView, Arg.Is<IJiraLoginParent>(
+                    arg => arg.Username == "username"));
+        }
+
+        [Test]
+        public void LoadsJiraDashboardsWhenLoadButtonClicked() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _jira.Received().GetDashboardsAsync(Arg.Any<Uri>(), Arg.Any<JiraCredentials>());
+        }
+
+        [Test]
+        public void ShowsErrorIfLoadDashboardsButtonClickedWithInvalidJiraUrl() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "bad";
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+        }
+
+        [Test]
+        public void UsesCredentialsFromPreferencesWhenLoadingDashboard() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _preferences.GetPreferences()
+                .Returns(new Preferences {
+                    LoginCookies = credentials
+                });
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _jira.Received().GetDashboardsAsync(Arg.Any<Uri>(), credentials);
+        }
+
+        [Test]
+        public void UsesCredentialsFromJiraLoginViewIfTheyHaveBeenUpdated() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _jira.Received().GetDashboardsAsync(Arg.Any<Uri>(), credentials);
+        }
+
+        [Test]
+        public void UsesJiraUriFromViewToGetDashboards() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _jira.Received().GetDashboardsAsync(new Uri("http://somejira.atlassian.net"), Arg.Any<JiraCredentials>());
+        }
+
+        [Test]
+        public void SavesPreferencesWhenSaveButtonClicked() {
+            var preferences = new Preferences();
+            _preferences.GetPreferences().Returns(preferences);
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
 
             //
 
@@ -104,17 +227,134 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
+            _preferences.Received().SetPreferences(preferences);
+        }
+
+        [Test]
+        public void SavesUpdatedJiraUrlInPreferences() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _preferences.Received()
+                .SetPreferences(Arg.Is<Preferences>(
+                    p => p.JiraUri == new Uri("http://somejira.atlassian.net")));
+        }
+
+        [Test]
+        public void SavesUpdatedCredentialsInPreferences() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _preferences.Received()
+                .SetPreferences(Arg.Is<Preferences>(
+                    p => p.LoginCookies == credentials));
+        }
+
+        [Test]
+        public void SavesNoCredentialsInPreferencesIfTheyAreCleared() {
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().ClearJiraCredentials());
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _preferences.Received()
+                .SetPreferences(Arg.Is<Preferences>(
+                    p => p.LoginCookies.Count == 0 && p.LoginUsername == null));
+        }
+
+        [Test]
+        public void ShowsErrorIfSaveButtonClickedWithInvalidJiraUrl() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "bad";
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
             _view.DidNotReceive().Close();
         }
 
         [Test]
-        public void SavesUrlFromViewWhenSaveButtonClicked() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void ShowsErrorIfDashboardsFailToLoad() {
             _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _jira.GetDashboardsAsync(Arg.Any<Uri>(), Arg.Any<JiraCredentials>())
+                .Returns(Task.Run((Func<IEnumerable<JiraDashboard>>)(() => throw new HttpRequestException())));
 
-            _view.DashboardUrl.Returns("http://www.google.com/");
-            _view.LoginUsername.Returns("user");
-            _view.LoginPassword.Returns("pass");
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            Thread.Sleep(100);
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+        }
+
+        [Test]
+        public void PutsDashboardsIntoListViewWhenTheyAreLoaded() {
+            var dashboards = new[] {
+                new JiraDashboard("Dashboard 1000", 1000),
+                new JiraDashboard("Dashboard 2000", 2000)
+            };
+
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _jira.GetDashboardsAsync(Arg.Any<Uri>(), Arg.Any<JiraCredentials>())
+                .Returns(Task.FromResult(dashboards.AsEnumerable()));
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DashboardItems = Arg.Do<IDashboardDisplayItem[]>(
+                a => Assert.That(a, Is.EquivalentTo(dashboards)));
+        }
+
+        [Test]
+        public void ShowsErrorIfSavingWithoutSelectedDashboard() {
+            _presenter.Initialize(_view);
+            _view.SelectedDashboardItem = null;
+            _view.JiraUrl = "http://somejira.atlassian.net";
 
             //
 
@@ -122,17 +362,16 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _preferences.Received()
-                .SetPreferences(Arg.Is<Preferences>(p => 
-                    p.DashboardUri.Equals(new Uri("http://www.google.com/"))
-                ));
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+            _view.DidNotReceive().Close();
         }
 
         [Test]
-        public void ShowsErrorIfDashboardUriIsNotSet() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void SavesSelectedDashboardIdIntoPreferences() {
             _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("");
+            _view.SelectedDashboardItem = new JiraDashboard("Dashboard 1000", 1000);
+            _view.JiraUrl = "http://somejira.atlassian.net";
 
             //
 
@@ -140,102 +379,15 @@ namespace Jira.WallboardScreensaver.Tests {
 
             //
 
-            _view.Received().ShowError(Arg.Any<string>());
+            _preferences.Received().SetPreferences(Arg.Is<Preferences>(
+                p => p.DashboardId == 1000));
         }
 
         [Test]
-        public void ShowsErrorIfDashboardUriIsNotValid() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void ClosesFormWhenValidPreferencesAreSaved() {
             _presenter.Initialize(_view);
-            _view.DashboardUrl.Returns("bad");
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _view.Received().ShowError(Arg.Any<string>());
-        }
-
-        [Test]
-        public void LogsInToJiraWhenSaveButtonIsClicked() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns("user");
-            _view.LoginPassword.Returns("pass");
-            _view.Anonymous.Returns(false);
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _jira.Received().Login(new Uri("http://www.google.com/"), "user", "pass");
-        }
-
-        [Test]
-        public void DisablesViewWhileLoggingInToJira() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Returns(TaskThatNeverCompletes<IReadOnlyDictionary<string, string>>());
-
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns("user");
-            _view.LoginPassword.Returns("pass");
-            _view.Anonymous.Returns(false);
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _view.Received().Disabled = true;
-        }
-
-        [Test]
-        public void SavesCookiesAndUsernameFromJiraLoginWhenSaveButtonClicked() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns("user");
-            _view.LoginPassword.Returns("pass");
-            _view.Anonymous.Returns(false);
-
-            var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Returns(Task.FromResult(cookies));
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _preferences.Received()
-                .SetPreferences(Arg.Is<Preferences>(p =>
-                    p.LoginCookies == cookies &&
-                    p.LoginUsername == "user"));
-        }
-
-        [Test]
-        public void ClosesViewAfterSavingPreferences() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns("user");
-            _view.LoginPassword.Returns("pass");
-
-            var cookies = Substitute.For<IReadOnlyDictionary<string, string>>();
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Returns(Task.FromResult(cookies));
+            _view.SelectedDashboardItem = new JiraDashboard("Dashboard 1000", 1000);
+            _view.JiraUrl = "http://somejira.atlassian.net";
 
             //
 
@@ -247,133 +399,94 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
-        public void ShowsErrorMessageIfUsernameIsNotSet() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void ClosesFormWhenCancelButtonClicked() {
             _presenter.Initialize(_view);
 
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns(string.Empty);
-            _view.LoginPassword.Returns("pass");
-            _view.Anonymous.Returns(false);
+            //
+
+            _view.CancelButtonClicked += Raise.Event();
 
             //
 
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _view.Received().ShowError(Arg.Any<string>());
-            _view.DidNotReceive().Close();
-            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+            _view.Received().Close();
         }
 
         [Test]
-        public void ShowsErrorMessageIfPasswordIsNotSet() {
-            _preferences.GetPreferences().Returns(new Preferences());
+        public void ClearsDashboardsWhenJiraCredentialsAreChanged() {
+            var credentials = Substitute.For<JiraCredentials>();
+
             _presenter.Initialize(_view);
 
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns("user");
-            _view.LoginPassword.Returns(string.Empty);
-            _view.Anonymous.Returns(false);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
 
             //
 
-            _view.SaveButtonClicked += Raise.Event();
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DashboardItems = Arg.Is<IDashboardDisplayItem[]>(
+                arg => arg.Length == 0);
+        }
+
+        [Test]
+        public void SetsHasCredentialsPropertyWhenCredentialsAreSet() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DisplayHasCredentials = true;
+        }
+        [Test]
+        public void SetsHasCredentialsPropertyWhenCredentialsAreCleared() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().ClearJiraCredentials());
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DisplayHasCredentials = false;
+        }
+
+        [Test]
+        public void SetsHasCredentialsPropertyWhenInitializedWithCredentials() {
+            _preferences.GetPreferences()
+                .Returns(new Preferences {
+                    LoginCookies = new Dictionary<string, string> {
+                        {"cookie", "value"}
+                    }
+                });
+
+            //
+
+            _presenter.Initialize(_view);
             
             //
 
-            _view.Received().ShowError(Arg.Any<string>());
-            _view.DidNotReceive().Close();
-            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
-        }
-
-        [Test]
-        public void ShowsErrorMessageIfLoginFails() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns("user");
-            _view.LoginPassword.Returns("pass");
-            _view.Anonymous.Returns(false);
-
-            _jira.Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
-                .Throws(new HttpRequestException());
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _view.Received().ShowError(Arg.Any<string>());
-            _view.DidNotReceive().Close();
-            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
-        }
-
-        [Test]
-        public void DoesNotLoginToJiraIfAnonymousSet() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.Anonymous.Returns(true);
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _jira.DidNotReceive().Login(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>());
-        }
-
-        [Test]
-        public void SetsAnonymousIfThereAreNoCookiesInPreferences() {
-            _preferences.GetPreferences().Returns(new Preferences());
-
-            //
-
-            _presenter.Initialize(_view);
-
-            //
-
-            _view.Received().Anonymous = true;
-        }
-
-        [Test]
-        public void SetsLoginUsernameIfThereIsOne() {
-            _preferences.GetPreferences().Returns(new Preferences{ LoginUsername = "user" });
-
-            //
-
-            _presenter.Initialize(_view);
-
-            //
-
-            _view.Received().LoginUsername = "user";
-        }
-
-        [Test]
-        public void DoesNotShowErrorsForMissingUsernamePasswordIfAnonymousIsSet() {
-            _preferences.GetPreferences().Returns(new Preferences());
-            _presenter.Initialize(_view);
-
-            _view.DashboardUrl.Returns("http://www.google.com/somewhere");
-            _view.LoginUsername.Returns(string.Empty);
-            _view.LoginPassword.Returns(string.Empty);
-            _view.Anonymous.Returns(true);
-
-            //
-
-            _view.SaveButtonClicked += Raise.Event();
-
-            //
-
-            _view.DidNotReceive().ShowError(Arg.Any<string>());
-            _view.Received().Close();
-            _preferences.Received().SetPreferences(Arg.Any<Preferences>());
+            _view.Received().DisplayHasCredentials = true;
         }
     }
 }

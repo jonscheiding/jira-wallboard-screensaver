@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Services\BrowserService.cs" />
     <Compile Include="EditPreferences\EditPreferencesForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -56,8 +55,23 @@
     </Compile>
     <Compile Include="EditPreferences\EditPreferencesPresenter.cs" />
     <Compile Include="EditPreferences\IEditPreferencesView.cs" />
+    <Compile Include="EditPreferences\IJiraLoginView.cs" />
+    <Compile Include="EditPreferences\JiraLoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditPreferences\JiraLoginForm.Designer.cs">
+      <DependentUpon>JiraLoginForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditPreferences\JiraLoginPresenter.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\BrowserService.cs" />
     <Compile Include="IPresenter.cs" />
     <Compile Include="Preferences.cs" />
+    <Compile Include="Services\ErrorMessageService.cs" />
     <Compile Include="Services\JiraService.cs" />
     <Compile Include="Services\PreferencesService.cs" />
     <Compile Include="Screensaver\IScreensaverView.cs" />
@@ -81,6 +95,13 @@
     <EmbeddedResource Include="EditPreferences\EditPreferencesForm.resx">
       <DependentUpon>EditPreferencesForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="EditPreferences\JiraLoginForm.resx">
+      <DependentUpon>JiraLoginForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Screensaver\ScreensaverForm.resx">
       <DependentUpon>ScreensaverForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -96,9 +117,24 @@
     <MergeInputs Include="$(OutDir)*.dll" />
     <MergeOutput Include="package\$(TargetName).scr" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\refresh_grey_18x18.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ic_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ic_person.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ic_person_outline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ic_search.png" />
+  </ItemGroup>
   <Target Name="Package">
-    <MakeDir Directories="@(MergeOutput->'%(RelativeDir)')" /> 
-    <Delete Files="@(MergeOutput)" /> 
+    <MakeDir Directories="@(MergeOutput->'%(RelativeDir)')" />
+    <Delete Files="@(MergeOutput)" />
     <Exec Command="$(ILRepack) /target:winexe /out:&quot;@(MergeOutput)&quot; /ndebug @(MergeInputs->'&quot;%(Identity)&quot;', ' ')" />
   </Target>
 </Project>

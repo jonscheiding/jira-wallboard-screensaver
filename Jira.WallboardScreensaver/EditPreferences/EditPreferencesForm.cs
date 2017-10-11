@@ -1,54 +1,66 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
-namespace Jira.WallboardScreensaver.EditPreferences { 
+namespace Jira.WallboardScreensaver.EditPreferences {
     public partial class EditPreferencesForm : Form, IEditPreferencesView {
         public EditPreferencesForm() {
             InitializeComponent();
         }
 
+        public string JiraUrl {
+            get => jiraUrlTextBox.Text;
+            set => jiraUrlTextBox.Text = value;
+        }
+
+        public IDashboardDisplayItem[] DashboardItems {
+            get => dashboardsListBox.Items.Cast<IDashboardDisplayItem>().ToArray();
+            set {
+                dashboardsListBox.Items.Clear();
+                dashboardsListBox.Items.AddRange(value.ToArray<object>());
+            }
+        }
+
+        public IDashboardDisplayItem SelectedDashboardItem {
+            get => (IDashboardDisplayItem) dashboardsListBox.SelectedItem;
+            set => dashboardsListBox.SelectedItem = value;
+        }
+
+        public bool DisplayHasCredentials {
+            get => jiraLoginButton.Image == Properties.Resources.ic_person;
+            set => jiraLoginButton.Image = value
+                ? Properties.Resources.ic_person
+                : Properties.Resources.ic_person_outline;
+        }
+
+        public event EventHandler SelectedDashboardItemChanged;
+        public event EventHandler JiraLoginButtonClicked;
+        public event EventHandler LoadDashboardsButtonClicked;
         public event EventHandler SaveButtonClicked;
         public event EventHandler CancelButtonClicked;
 
-        public string DashboardUrl {
-            get => dashboardUrlText.Text;
-            set => dashboardUrlText.Text = value;
+        public IJiraLoginView CreateJiraLoginView() {
+            return new JiraLoginForm();
         }
 
-        public string LoginUsername {
-            get => loginUsernameText.Text;
-            set => loginUsernameText.Text = value;
+        public void ShowJiraLoginView(IJiraLoginView view) {
+            ((Form) view).ShowDialog();
         }
 
-        public string LoginPassword {
-            get => loginPasswordText.Text;
-            set => loginPasswordText.Text = value;
+        private void OnJiraLoginButtonClick(object sender, EventArgs e) {
+            JiraLoginButtonClicked?.Invoke(this, e);
         }
 
-        public bool Anonymous {
-            get => anonymousCheckbox.Checked;
-            set => anonymousCheckbox.Checked = value;
+        private void OnLoadDashboardsButtonClick(object sender, EventArgs e) {
+            LoadDashboardsButtonClicked?.Invoke(this, e);
         }
 
-        public bool Disabled {
-            get => !Enabled;
-            set => Enabled = !value;
-        }
-
-        public void ShowError(string errorMessage) {
-            MessageBox.Show(errorMessage, @"Invalid preferences", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private void OnSaveButtonClicked(object sender, EventArgs e) {
+        private void OnSaveButtonClick(object sender, EventArgs e) {
             SaveButtonClicked?.Invoke(this, e);
         }
 
-        private void OnCancelButtonClicked(object sender, EventArgs e) {
+        private void OnCancelButtonClick(object sender, EventArgs e) {
             CancelButtonClicked?.Invoke(this, e);
-        }
-
-        private void OnAnonymousCheckboxChanged(object sender, EventArgs e) {
-            loginPasswordText.Enabled = loginUsernameText.Enabled = !((CheckBox) sender).Checked;
         }
     }
 }

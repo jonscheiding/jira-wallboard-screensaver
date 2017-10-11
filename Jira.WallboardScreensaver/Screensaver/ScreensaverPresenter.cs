@@ -35,19 +35,19 @@ namespace Jira.WallboardScreensaver.Screensaver {
 
             _browser.ConfigureEmulation();
 
-            if (_preferences.DashboardUri != null && _preferences.LoginCookies != null) {
-                var baseUri = new Uri(_preferences.DashboardUri, "/");
-
+            if (_preferences.JiraUri != null && _preferences.LoginCookies != null) {
                 foreach (var cookie in _preferences.LoginCookies)
-                    _browser.SetCookie(baseUri, cookie.Key, cookie.Value);
+                    _browser.SetCookie(_preferences.JiraUri, cookie.Key, cookie.Value);
             }
         }
 
         private void OnLoad(object sender, EventArgs e) {
             BrieflyIgnoreUserActivity();
 
-            if (_preferences.DashboardUri != null)
-                _view.Navigate(_preferences.DashboardUri);
+            var dashboardUri = _preferences.GetDashboardUri();
+
+            if (dashboardUri != null)
+                _view.Navigate(dashboardUri);
         }
 
         private void OnUserActive(object sender, EventArgs e) {
