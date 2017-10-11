@@ -397,6 +397,7 @@ namespace Jira.WallboardScreensaver.Tests {
 
             _view.Received().Close();
         }
+
         [Test]
         public void ClosesFormWhenCancelButtonClicked() {
             _presenter.Initialize(_view);
@@ -408,6 +409,84 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _view.Received().Close();
+        }
+
+        [Test]
+        public void ClearsDashboardsWhenJiraCredentialsAreChanged() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DashboardItems = Arg.Is<IDashboardDisplayItem[]>(
+                arg => arg.Length == 0);
+        }
+
+        [Test]
+        public void SetsHasCredentialsPropertyWhenCredentialsAreSet() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().UpdateJiraCredentials(credentials, ""));
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DisplayHasCredentials = true;
+        }
+        [Test]
+        public void SetsHasCredentialsPropertyWhenCredentialsAreCleared() {
+            var credentials = Substitute.For<JiraCredentials>();
+
+            _presenter.Initialize(_view);
+
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            _childPresenter.When(c => c.Initialize(_childView, Arg.Any<IJiraLoginParent>()))
+                .Do(c => c.Arg<IJiraLoginParent>().ClearJiraCredentials());
+
+            //
+
+            _view.JiraLoginButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DisplayHasCredentials = false;
+        }
+
+        [Test]
+        public void SetsHasCredentialsPropertyWhenInitializedWithCredentials() {
+            _preferences.GetPreferences()
+                .Returns(new Preferences {
+                    LoginCookies = new Dictionary<string, string> {
+                        {"cookie", "value"}
+                    }
+                });
+
+            //
+
+            _presenter.Initialize(_view);
+            
+            //
+
+            _view.Received().DisplayHasCredentials = true;
         }
     }
 }

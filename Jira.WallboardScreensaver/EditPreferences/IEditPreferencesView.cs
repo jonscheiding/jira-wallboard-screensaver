@@ -5,6 +5,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
         string JiraUrl { get; set; }
         IDashboardDisplayItem[] DashboardItems { get; set; }
         IDashboardDisplayItem SelectedDashboardItem { get; set; }
+        bool DisplayHasCredentials { get; set; }
 
         event EventHandler SelectedDashboardItemChanged;
         event EventHandler JiraLoginButtonClicked;

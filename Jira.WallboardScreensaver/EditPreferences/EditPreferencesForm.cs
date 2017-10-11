@@ -26,6 +26,13 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             set => dashboardsListBox.SelectedItem = value;
         }
 
+        public bool DisplayHasCredentials {
+            get => jiraLoginButton.Image == Properties.Resources.ic_person;
+            set => jiraLoginButton.Image = value
+                ? Properties.Resources.ic_person
+                : Properties.Resources.ic_person_outline;
+        }
+
         public event EventHandler SelectedDashboardItemChanged;
         public event EventHandler JiraLoginButtonClicked;
         public event EventHandler LoadDashboardsButtonClicked;

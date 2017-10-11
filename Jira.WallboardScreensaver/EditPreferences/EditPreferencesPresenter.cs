@@ -9,8 +9,11 @@ namespace Jira.WallboardScreensaver.EditPreferences {
     public class EditPreferencesPresenter : IPresenter<IEditPreferencesView> {
         class JiraLoginParent : IJiraLoginParent {
             private readonly Preferences _preferences;
-            public JiraLoginParent(Preferences preferences) {
+            private readonly IEditPreferencesView _view;
+
+            public JiraLoginParent(Preferences preferences, IEditPreferencesView view) {
                 _preferences = preferences;
+                _view = view;
             }
 
             public string JiraUrl => _preferences.JiraUri.ToString();
@@ -18,11 +21,15 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             public void UpdateJiraCredentials(IReadOnlyDictionary<string, string> credentials, string username) {
                 _preferences.LoginCookies = credentials;
                 _preferences.LoginUsername = username;
+                _view.DisplayHasCredentials = true;
+                _view.DashboardItems = new IDashboardDisplayItem[0];
             }
 
             public void ClearJiraCredentials() {
                 _preferences.LoginCookies = new Dictionary<string, string>();
                 _preferences.LoginUsername = null;
+                _view.DisplayHasCredentials = false;
+                _view.DashboardItems = new IDashboardDisplayItem[0];
             }
         }
 
@@ -43,6 +50,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
             var preferences = _preferences.GetPreferences();
 
             view.JiraUrl = preferences.JiraUri?.ToString();
+            view.DisplayHasCredentials = preferences.LoginCookies.Count > 0;
 
             view.JiraLoginButtonClicked += (sender, e) => ShowJiraLoginView(view, preferences);
             view.SaveButtonClicked += (sender, e) => SavePreferences(view, preferences);
@@ -55,7 +63,7 @@ namespace Jira.WallboardScreensaver.EditPreferences {
                 return;
             }
 
-            var parent = new JiraLoginParent(preferences);
+            var parent = new JiraLoginParent(preferences, view);
 
             var childView = view.CreateJiraLoginView();
             _childPresenter.Initialize(childView, parent);
