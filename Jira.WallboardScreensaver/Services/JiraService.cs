@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Jira.WallboardScreensaver.EditPreferences;
 using JiraCredentials = System.Collections.Generic.IReadOnlyDictionary<string, string>;
+using IDashboardDisplayItem2 = Jira.WallboardScreensaver.EditPreferences2.IDashboardDisplayItem;
 
 namespace Jira.WallboardScreensaver.Services {
-    public class JiraDashboard : IDashboardDisplayItem {
+    public class JiraDashboard : IDashboardDisplayItem, IDashboardDisplayItem2 {
         public JiraDashboard(string name, int id) {
             Name = name;
             Id = id;

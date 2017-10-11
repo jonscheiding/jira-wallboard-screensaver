@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Jira.WallboardScreensaver.Services;
 
@@ -58,12 +59,33 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
                 return;
             }
 
-            var result = await _jira.GetDashboardsAsync(preferences.JiraUri, preferences.LoginCookies);
+            IEnumerable<JiraDashboard> result;
+            try {
+                result = await _jira.GetDashboardsAsync(preferences.JiraUri, preferences.LoginCookies);
+            } catch (Exception x) {
+                _errors.ShowErrorMessage(view, x.Message, "Error Loading Dashboards");
+                return;
+            }
+
+            view.DashboardItems = result.ToArray<IDashboardDisplayItem>();
         }
 
         private void SavePreferences(IEditPreferencesView view, Preferences preferences) {
-            TryValidateJiraUri(view, preferences);
+            if (!TryValidateJiraUri(view, preferences)) {
+                return;
+            }
+
+            if (view.SelectedDashboardItem == null) {
+                _errors.ShowErrorMessage(view,
+                    "Please select a dashboard.  To load your JIRA dashboards, click the \"Load dashboards\" button next to the JIRA URL.",
+                    "Invalid Dashboard Selection");
+                return;
+            }
+
+            preferences.DashboardId = ((JiraDashboard) view.SelectedDashboardItem).Id;
+
             _preferences.SetPreferences(preferences);
+            view.Close();
         }
 
         private bool TryValidateJiraUri(IEditPreferencesView view, Preferences preferences) {
@@ -71,6 +93,7 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
                 preferences.JiraUri = new Uri(view.JiraUrl);
                 return true;
             } catch (Exception x) {
+                _errors.ShowErrorMessage(view, x.Message, "Invalid JIRA URL");
                 return false;
             }
         }

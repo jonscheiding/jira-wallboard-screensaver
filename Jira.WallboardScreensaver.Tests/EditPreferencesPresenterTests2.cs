@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Jira.WallboardScreensaver.EditPreferences2;
 using Jira.WallboardScreensaver.Services;
 using NSubstitute;
@@ -23,7 +28,7 @@ namespace Jira.WallboardScreensaver.Tests {
             _childView = Substitute.For<IJiraLoginView>();
             _preferences = Substitute.For<IPreferencesService>();
             _jira = Substitute.For<IJiraService>();
-            _errors = Substitute.For<IErrorMessageService>();
+            _errors = TestHelper.LogErrors(Substitute.For<IErrorMessageService>());
 
             _presenter = new EditPreferencesPresenter(_childPresenter, _preferences, _jira, _errors);
 
@@ -103,6 +108,21 @@ namespace Jira.WallboardScreensaver.Tests {
         }
 
         [Test]
+        public void ShowsErrorIfLoadDashboardsButtonClickedWithInvalidJiraUrl() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "bad";
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+        }
+
+        [Test]
         public void UsesCredentialsFromPreferencesWhenLoadingDashboard() {
             var credentials = Substitute.For<JiraCredentials>();
 
@@ -164,6 +184,8 @@ namespace Jira.WallboardScreensaver.Tests {
             var preferences = new Preferences();
             _preferences.GetPreferences().Returns(preferences);
             _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
 
             //
 
@@ -178,6 +200,7 @@ namespace Jira.WallboardScreensaver.Tests {
         public void SavesUpdatedJiraUrlInPreferences() {
             _presenter.Initialize(_view);
             _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
 
             //
 
@@ -195,6 +218,7 @@ namespace Jira.WallboardScreensaver.Tests {
             var credentials = Substitute.For<JiraCredentials>();
 
             _view.JiraUrl = "http://somejira.atlassian.net";
+            _view.SelectedDashboardItem = new JiraDashboard("", 1);
 
             _presenter.Initialize(_view);
 
@@ -211,6 +235,111 @@ namespace Jira.WallboardScreensaver.Tests {
             _preferences.Received()
                 .SetPreferences(Arg.Is<Preferences>(
                     p => p.LoginCookies == credentials));
+        }
+
+        [Test]
+        public void ShowsErrorIfSaveButtonClickedWithInvalidJiraUrl() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "bad";
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+            _view.DidNotReceive().Close();
+        }
+
+        [Test]
+        public void ShowsErrorIfDashboardsFailToLoad() {
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _jira.GetDashboardsAsync(Arg.Any<Uri>(), Arg.Any<JiraCredentials>())
+                .Returns(Task.Run((Func<IEnumerable<JiraDashboard>>)(() => throw new HttpRequestException())));
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            Thread.Sleep(100);
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+        }
+
+        [Test]
+        public void PutsDashboardsIntoListViewWhenTheyAreLoaded() {
+            var dashboards = new[] {
+                new JiraDashboard("Dashboard 1000", 1000),
+                new JiraDashboard("Dashboard 2000", 2000)
+            };
+
+            _presenter.Initialize(_view);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+            _jira.GetDashboardsAsync(Arg.Any<Uri>(), Arg.Any<JiraCredentials>())
+                .Returns(Task.FromResult(dashboards.AsEnumerable()));
+
+            //
+
+            _view.LoadDashboardsButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().DashboardItems = Arg.Do<IDashboardDisplayItem[]>(
+                a => Assert.That(a, Is.EquivalentTo(dashboards)));
+        }
+
+        [Test]
+        public void ShowsErrorIfSavingWithoutSelectedDashboard() {
+            _presenter.Initialize(_view);
+            _view.SelectedDashboardItem = null;
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _errors.Received().ShowErrorMessage(_view, Arg.Any<string>(), Arg.Any<string>());
+            _preferences.DidNotReceive().SetPreferences(Arg.Any<Preferences>());
+            _view.DidNotReceive().Close();
+        }
+
+        [Test]
+        public void SavesSelectedDashboardIdIntoPreferences() {
+            _presenter.Initialize(_view);
+            _view.SelectedDashboardItem = new JiraDashboard("Dashboard 1000", 1000);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _preferences.Received().SetPreferences(Arg.Is<Preferences>(
+                p => p.DashboardId == 1000));
+        }
+
+        [Test]
+        public void ClosesFormWhenValidPreferencesAreSaved() {
+            _presenter.Initialize(_view);
+            _view.SelectedDashboardItem = new JiraDashboard("Dashboard 1000", 1000);
+            _view.JiraUrl = "http://somejira.atlassian.net";
+
+            //
+
+            _view.SaveButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().Close();
         }
     }
 }
