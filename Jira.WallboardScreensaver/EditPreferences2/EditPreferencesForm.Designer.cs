@@ -51,6 +51,7 @@
             cancelButton.TabIndex = 0;
             cancelButton.Text = "Cancel";
             cancelButton.UseVisualStyleBackColor = true;
+            cancelButton.Click += new System.EventHandler(this.OnCancelButtonClick);
             // 
             // saveButton
             // 
@@ -61,6 +62,7 @@
             saveButton.TabIndex = 1;
             saveButton.Text = "Save";
             saveButton.UseVisualStyleBackColor = true;
+            saveButton.Click += new System.EventHandler(this.OnSaveButtonClick);
             // 
             // label1
             // 
@@ -81,6 +83,7 @@
             loadDashboardsButton.TabIndex = 5;
             this.toolTip1.SetToolTip(loadDashboardsButton, "Load dashboards");
             loadDashboardsButton.UseVisualStyleBackColor = true;
+            loadDashboardsButton.Click += new System.EventHandler(this.OnLoadDashboardsButtonClick);
             // 
             // label2
             // 
@@ -110,6 +113,7 @@
             this.jiraLoginButton.TabIndex = 4;
             this.toolTip1.SetToolTip(this.jiraLoginButton, "Log in to JIRA");
             this.jiraLoginButton.UseVisualStyleBackColor = true;
+            this.jiraLoginButton.Click += new System.EventHandler(this.OnJiraLoginButtonClick);
             // 
             // dashboardsListBox
             // 

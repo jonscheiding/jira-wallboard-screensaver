@@ -67,6 +67,7 @@
             loginButton.TabIndex = 6;
             loginButton.Text = "Login";
             loginButton.UseVisualStyleBackColor = true;
+            loginButton.Click += new System.EventHandler(this.OnLoginButtonClick);
             // 
             // usernameTextBox
             // 
@@ -92,6 +93,7 @@
             cancelButton.TabIndex = 4;
             cancelButton.Text = "Cancel";
             cancelButton.UseVisualStyleBackColor = true;
+            cancelButton.Click += new System.EventHandler(this.OnCancelButtonClick);
             // 
             // clearButton
             // 
@@ -102,6 +104,7 @@
             clearButton.TabIndex = 5;
             toolTip1.SetToolTip(clearButton, "Remove saved JIRA credentials");
             clearButton.UseVisualStyleBackColor = true;
+            clearButton.Click += new System.EventHandler(this.OnClearButtonClick);
             // 
             // JiraLoginForm
             // 

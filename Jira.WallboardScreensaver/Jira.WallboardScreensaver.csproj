@@ -53,6 +53,8 @@
     <Compile Include="EditPreferences2\EditPreferencesForm.Designer.cs">
       <DependentUpon>EditPreferencesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditPreferences2\IEditPreferencesView.cs" />
+    <Compile Include="EditPreferences2\IJiraLoginView.cs" />
     <Compile Include="EditPreferences2\JiraLoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
