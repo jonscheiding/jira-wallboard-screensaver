@@ -53,6 +53,7 @@
     <Compile Include="EditPreferences2\EditPreferencesForm.Designer.cs">
       <DependentUpon>EditPreferencesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditPreferences2\EditPreferencesPresenter.cs" />
     <Compile Include="EditPreferences2\IEditPreferencesView.cs" />
     <Compile Include="EditPreferences2\IJiraLoginView.cs" />
     <Compile Include="EditPreferences2\JiraLoginForm.cs">
@@ -62,12 +63,6 @@
       <DependentUpon>JiraLoginForm.cs</DependentUpon>
     </Compile>
     <Compile Include="EditPreferences2\JiraLoginPresenter.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Services\BrowserService.cs" />
     <Compile Include="EditPreferences\EditPreferencesForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -76,6 +71,12 @@
     </Compile>
     <Compile Include="EditPreferences\EditPreferencesPresenter.cs" />
     <Compile Include="EditPreferences\IEditPreferencesView.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\BrowserService.cs" />
     <Compile Include="IPresenter.cs" />
     <Compile Include="Preferences.cs" />
     <Compile Include="Services\JiraService.cs" />

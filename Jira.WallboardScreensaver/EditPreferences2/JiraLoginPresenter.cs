@@ -26,7 +26,9 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
                 view.ShowError("Please enter your username and password.");
                 return;
             }
-            
+
+            view.Disabled = true;
+
             try {
                 var credentials = await _jiraService.LoginAsync(
                     new Uri(parent.JiraUrl),
@@ -37,6 +39,8 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
                 view.Close();
             } catch (Exception x) {
                 view.ShowError(x.Message);
+            } finally {
+                view.Disabled = false;
             }
         }
     }

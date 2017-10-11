@@ -17,6 +17,11 @@ namespace Jira.WallboardScreensaver.EditPreferences2 {
             set => passwordTextBox.Text = value;
         }
 
+        public bool Disabled {
+            get => !Enabled;
+            set => Enabled = !value;
+        }
+
         public void ShowError(string errorMessage) {
             MessageBox.Show(errorMessage, @"Invalid credentials", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }

@@ -10,6 +10,7 @@ namespace Jira.WallboardScreensaver {
 
         public virtual string LoginUsername { get; set; }
         public virtual Uri DashboardUri { get; set; }
+        public virtual Uri JiraUri { get; set; }
         public virtual IReadOnlyDictionary<string, string> LoginCookies { get; set; }
     }
 }

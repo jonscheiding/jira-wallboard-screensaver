@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Jira.WallboardScreensaver.EditPreferences2;
 using Jira.WallboardScreensaver.Services;
@@ -72,6 +73,47 @@ namespace Jira.WallboardScreensaver.Tests {
             //
 
             _jiraService.Received().LoginAsync(new Uri("http://somejira.atlassian.net"), "username", "password");
+        }
+
+        [Test]
+        public void DisablesFormWhileLoggingInToJira() {
+            _presenter.Initialize(_view, _parent);
+
+            _view.Username = "username";
+            _view.Password = "password";
+            _parent.JiraUrl.Returns("http://somejira.atlassian.net");
+
+            //
+
+            _view.LoginButtonClicked += Raise.Event();
+
+            //
+
+            _view.Received().Disabled = true;
+        }
+
+        [Test]
+        public void ReEnablesFormAfterAnErrorLoggingInToJira() {
+            var task = Task.Delay(100).ContinueWith((Func<Task, IReadOnlyDictionary<string, string>>)(t => throw new HttpRequestException()));
+
+            _presenter.Initialize(_view, _parent);
+
+            _view.Username = "username";
+            _view.Password = "password";
+            _parent.JiraUrl.Returns("http://somejira.atlassian.net");
+
+            _jiraService.LoginAsync(Arg.Any<Uri>(), Arg.Any<string>(), Arg.Any<string>())
+                .Returns(task);
+
+            //
+
+            _view.LoginButtonClicked += Raise.Event();
+
+            //
+
+            Thread.Sleep(200);
+
+            _view.Received().Disabled = true;
         }
 
         [Test]
