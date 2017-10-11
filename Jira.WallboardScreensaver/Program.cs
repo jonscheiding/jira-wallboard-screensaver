@@ -67,7 +67,9 @@ namespace Jira.WallboardScreensaver {
                     Application.Run(Present<ScreensaverForm, IScreensaverView>());
                     break;
                 default:
-                    throw new ArgumentException($"Unknown argument value: `{args[0]}`.");
+                    var errors = Container.Resolve<IErrorMessageService>();
+                    errors.ShowErrorMessage(null, $"Unknown argument value '{args[0]}'.", "Invalid Command-Line");
+                    break;
             }
         }
     }
