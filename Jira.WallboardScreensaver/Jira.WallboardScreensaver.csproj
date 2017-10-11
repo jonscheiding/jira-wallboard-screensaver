@@ -61,6 +61,7 @@
     <Compile Include="EditPreferences2\JiraLoginForm.Designer.cs">
       <DependentUpon>JiraLoginForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditPreferences2\JiraLoginPresenter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
