@@ -4,6 +4,10 @@ Show your JIRA Wallboards as a screensaver on your information radiator machine.
 
 [![Build Status](https://travis-ci.org/jonscheiding/jira-wallboard-screensaver.svg?branch=master)](https://travis-ci.org/jonscheiding/jira-wallboard-screensaver)
 
+## Prerequisites
+
+1. .NET Framework 4.6.2 or higher
+
 ## Installation 
 
 1. Download the lastest release from the [releases page](https://github.com/jonscheiding/jira-wallboard-screensaver/releases/latest).  Unzip the .scr file to somewhere on your computer.
@@ -11,9 +15,9 @@ Show your JIRA Wallboards as a screensaver on your information radiator machine.
 
 ## Configuration
 
-1. Enter the URL of the wallboard.  You can get this by going to your JIRA Dashboard, clicking the **[•••]** menu, and clicking "View as Wallboard".
-2. If your wallboard does not require authentication to view, tick the Anonymous checkbox.
-3. Otherwise, enter the credentials to view the wallboard.  (Your password will not be stored; the configuration will retrieve a login cookie from JIRA.)
+1. Enter the URL of your JIRA instance.
+2. If your wallboard requires authentication to view, click the Login to JIRA button (![person_outline](Jira.WallboardScreensaver/Resources/ic_person_outline.png)).  Enter your credentials.  (Your password will not be stored; the configuration will retrieve a login cookie from JIRA.)
+3. Click the Load Dashboards button (![search](Jira.WallboardScreensaver/Resources/ic_search.png)).  Choose your dashboard, and click Save.
 
 ##  Uninstallation
 
